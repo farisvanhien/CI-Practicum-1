@@ -1,0 +1,6 @@
+D:\School\Computationele Intelligentie\sudoku1\sudoku1\bin\Debug\sudoku1.exe.config
+D:\School\Computationele Intelligentie\sudoku1\sudoku1\bin\Debug\sudoku1.exe
+D:\School\Computationele Intelligentie\sudoku1\sudoku1\bin\Debug\sudoku1.pdb
+D:\School\Computationele Intelligentie\sudoku1\sudoku1\obj\Debug\sudoku1.csprojResolveAssemblyReference.cache
+D:\School\Computationele Intelligentie\sudoku1\sudoku1\obj\Debug\sudoku1.exe
+D:\School\Computationele Intelligentie\sudoku1\sudoku1\obj\Debug\sudoku1.pdb
