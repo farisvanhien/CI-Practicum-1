@@ -228,14 +228,23 @@ namespace sudoku1
 
             // hill-climb
 
+            Console.WriteLine("");
             for (int k = 0; k < 9; k++)
             {
                 string output = "";
                 for (int l = 0; l < 9; l++)
                 {
+                    if (l % 3 == 0 && l % 9 != 0)
+                        output += "|";
+                    else output += " ";
                     output += sudoku[k * 9 + l];
+                    
                 }
+                if (k % 3 == 0 && k != 0)
+                    Console.WriteLine("------------------");
+
                 Console.WriteLine(output);
+                
             }
             Console.ReadKey();
         }
