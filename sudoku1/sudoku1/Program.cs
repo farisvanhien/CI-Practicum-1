@@ -35,49 +35,48 @@ namespace sudoku1
                 }
             }
 
-            // initiate the not-fixed
-            for(int i = 0; i < 3; i++)
+            for(int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
             {
-                List<int> numbers = new List<int>();
-                for (int j = 0; j < 3; j++)
+                // initiate the not-fixed
+                for (int verticalBlock = 0; verticalBlock < 3; verticalBlock++)
                 {
-                    for(int k = 0; k < 3; k++)
+                    List<int> numbers = new List<int>();
+                    for (int verticalNumber = 0; verticalNumber < 3; verticalNumber++)
                     {
-                        if(sudoku[i*3+j*9+k] != 0)
+                        for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
                         {
-                            numbers.Add(sudoku[i * 3 + j * 9 + k]);
+                            int index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
+
+                            if (sudoku[index] != 0)
+                            {
+                                numbers.Add(sudoku[index]);
+                            }
                         }
                     }
-                }
-                int index = r.Next(9) + 1;
-                for (int j = 0; j < 3; j++)
-                {
-                    for (int k = 0; k < 3; k++)
+
+                    for (int verticalNumber = 0; verticalNumber < 3; verticalNumber++)
                     {
-                        if(!start[i * 3 + j * 9 + k]) // vrij
+                        for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
                         {
-                            if (!numbers.Contains(index)) // index bestaat nog niet
+                            int index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
+
+                            if (!start[index])  // free space
                             {
-                                sudoku[i * 3 + j * 9 + k] = index;
-                            }
-                            else // bestaat wel
-                            {
-                                while (numbers.Contains(index))
+                                int random = r.Next(9) + 1;  // get a random number
+                                
+                                while (numbers.Contains(random))    // only place unique numbers
                                 {
-                                    index++;
-                                    if (index > 9) index = 1;
+                                    random++;
+                                    if (random > 9) random = 1;
                                 }
-                                sudoku[i * 3 + j * 9 + k] = index;
+                                sudoku[index] = random;     // place the number
+                                numbers.Add(random);        // add it to the list to avoid getting the same number
                             }
-                            index++;
-                            if (index > 9) index = 1;
                         }
                     }
                 }
-
-
-
             }
+            
 
             // hill-climb
             

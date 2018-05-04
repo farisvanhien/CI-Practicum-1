@@ -4,3 +4,10 @@ D:\School\Computationele Intelligentie\sudoku1\sudoku1\bin\Debug\sudoku1.pdb
 D:\School\Computationele Intelligentie\sudoku1\sudoku1\obj\Debug\sudoku1.csprojResolveAssemblyReference.cache
 D:\School\Computationele Intelligentie\sudoku1\sudoku1\obj\Debug\sudoku1.exe
 D:\School\Computationele Intelligentie\sudoku1\sudoku1\obj\Debug\sudoku1.pdb
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\bin\Debug\sudoku1.exe.config
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\bin\Debug\sudoku1.exe
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\bin\Debug\sudoku1.pdb
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.csprojResolveAssemblyReference.cache
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.csproj.CoreCompileInputs.cache
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.exe
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.pdb
