@@ -241,7 +241,7 @@ namespace sudoku1
                     
                 }
                 if (k % 3 == 0 && k != 0)
-                    Console.WriteLine("------+-----+-----");
+                    Console.WriteLine(" -----+-----+-----");
 
                 Console.WriteLine(output);
                 
