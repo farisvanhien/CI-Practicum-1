@@ -18,8 +18,14 @@ namespace sudoku1
         int[] sudoku = new int[81];
         bool[] start = new bool[81];
         Random r = new Random();
+
+        
+
         public Sudoku()
         {
+
+            int index = 0;
+
             // make grid with input
             for(int rows = 0; rows < 9; rows++)
             {
@@ -45,7 +51,7 @@ namespace sudoku1
                     {
                         for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
                         {
-                            int index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
+                            index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
 
                             if (sudoku[index] != 0)
                             {
@@ -58,7 +64,7 @@ namespace sudoku1
                     {
                         for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
                         {
-                            int index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
+                            index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
 
                             if (!start[index])  // free space
                             {
@@ -86,18 +92,139 @@ namespace sudoku1
             HashSet<int> row3 = new HashSet<int>();
             HashSet<int> column3 = new HashSet<int>();
 
-            int index = 0; // tijdelijk
+            int randomHill = r.Next(9) + 1;  // get a random number
+
+            switch (randomHill) // get the correct index
+            {
+                case 1:
+                    index = 0;
+                    break;
+                case 2:
+                    index = 3;
+                    break;
+                case 3:
+                    index = 6;
+                    break;
+                case 4:
+                    index = 27;
+                    break;
+                case 5:
+                    index = 30;
+                    break;
+                case 6:
+                    index = 33;
+                    break;
+                case 7:
+                    index = 54;
+                    break;
+                case 8:
+                    index = 57;
+                    break;
+                case 9:
+                    index = 60;
+                    break;
+            }
+
+            int indexHill = index;
 
             for (int number = 0; number < 3; number++)
             {
-                int toSubtract = index % 9;
-                int startRow = index - toSubtract;
-                while (startRow % 9 != 0)
+                if(number == 0)
                 {
-                    row1.Add(startRow);
+                    int modulus = indexHill % 9;
+                    int startRow = indexHill - modulus;
+                    row1.Add(sudoku[startRow]);
                     startRow++;
+                    while (startRow % 9 != 0)
+                    {
+                        row1.Add(sudoku[startRow]);
+                        startRow++;
+                    }
+                    int startColumn = modulus;
+                    while (startColumn < 81)
+                    {
+                        column1.Add(sudoku[startColumn]);
+                        startColumn += 9;
+                    }
                 }
+                else if (number == 1)
+                {
+                    int modulus = indexHill % 9;
+                    int startRow = indexHill - modulus;
+                    row2.Add(sudoku[startRow]);
+                    startRow++;
+                    while (startRow % 9 != 0)
+                    {
+                        row2.Add(sudoku[startRow]);
+                        startRow++;
+                    }
+                    int startColumn = modulus;
+                    while (startColumn < 82)
+                    {
+                        column2.Add(sudoku[startColumn]);
+                        startColumn += 9;
+                    }
+                }
+                else
+                {
+                    int modulus = indexHill % 9;
+                    int startRow = indexHill - modulus;
+                    row3.Add(sudoku[startRow]);
+                    startRow++;
+                    while (startRow % 9 != 0)
+                    {
+                        row3.Add(sudoku[startRow]);
+                        startRow++;
+                    }
+                    int startColumn = modulus;
+                    while (startColumn < 82)
+                    {
+                        column3.Add(sudoku[startColumn]);
+                        startColumn += 9;
+                    }
+                }
+
+                indexHill += 10;
+
             }
+
+            int[] scores = new int[9];
+
+            for (int number = 1; number < 10; number++) // calculate the starting scores of a block
+            {
+                switch (number)
+                {
+                    case 1:
+                        scores[0] = 18 - row1.Count - column1.Count;
+                        break;
+                    case 2:
+                        scores[1] = 18 - row1.Count - column2.Count;
+                        break;
+                    case 3:
+                        scores[2] = 18 - row1.Count - column3.Count;
+                        break;
+                    case 4:
+                        scores[3] = 18 - row2.Count - column1.Count;
+                        break;
+                    case 5:
+                        scores[4] = 18 - row2.Count - column2.Count;
+                        break;
+                    case 6:
+                        scores[5] = 18 - row2.Count - column3.Count;
+                        break;
+                    case 7:
+                        scores[6] = 18 - row3.Count - column1.Count;
+                        break;
+                    case 8:
+                        scores[7] = 18 - row3.Count - column2.Count;
+                        break;
+                    case 9:
+                        scores[8] = 18 - row3.Count - column3.Count;
+                        break;
+                }
+                
+            }
+
 
             // hill-climb
 
