@@ -76,10 +76,31 @@ namespace sudoku1
                     }
                 }
             }
-            
+
+            HashSet<int> row1 = new HashSet<int>();
+            HashSet<int> column1 = new HashSet<int>();
+
+            HashSet<int> row2 = new HashSet<int>();
+            HashSet<int> column2 = new HashSet<int>();
+
+            HashSet<int> row3 = new HashSet<int>();
+            HashSet<int> column3 = new HashSet<int>();
+
+            int index = 0; // tijdelijk
+
+            for (int number = 0; number < 3; number++)
+            {
+                int toSubtract = index % 9;
+                int startRow = index - toSubtract;
+                while (startRow % 9 != 0)
+                {
+                    row1.Add(startRow);
+                    startRow++;
+                }
+            }
 
             // hill-climb
-            
+
             for (int k = 0; k < 9; k++)
             {
                 string output = "";
