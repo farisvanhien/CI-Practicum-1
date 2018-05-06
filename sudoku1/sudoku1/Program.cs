@@ -42,13 +42,13 @@ namespace sudoku1
             int index = 0;
 
             // make grid with input
-            for(int rows = 0; rows < 9; rows++)
+            for (int rows = 0; rows < 9; rows++)
             {
                 string[] input = Console.ReadLine().Split();
-                for(int cols = 0; cols < 9; cols++)
+                for (int cols = 0; cols < 9; cols++)
                 {
                     sudoku[rows * 9 + cols] = int.Parse(input[cols]);
-                    if(sudoku[rows * 9 + cols] != 0)
+                    if (sudoku[rows * 9 + cols] != 0)
                     {
                         start[rows * 9 + cols] = true;
                     }
@@ -56,7 +56,7 @@ namespace sudoku1
                 }
             }
 
-            for(int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
+            for (int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
             {
                 // initiate the not-fixed
                 for (int verticalBlock = 0; verticalBlock < 3; verticalBlock++)
@@ -84,7 +84,7 @@ namespace sudoku1
                             if (!start[index])  // free space
                             {
                                 int random = r.Next(9) + 1;  // get a random number
-                                
+
                                 while (numbers.Contains(random))    // only place unique numbers
                                 {
                                     random++;
@@ -101,156 +101,162 @@ namespace sudoku1
             Console.WriteLine("Randomly filled in:");
             printSudoku();
 
-            
-            int randomBlock = r.Next(9) + 1;  // get a random number
-            switch (randomBlock) // get the correct index
+            // na 20000 iteraties alleen nog maar 0, 2 en 3 of 4
+            for (int i = 0; i < 20000; i++)
             {
-                case 1:
-                    index = 0;
-                    break;
-                case 2:
-                    index = 3;
-                    break;
-                case 3:
-                    index = 6;
-                    break;
-                case 4:
-                    index = 27;
-                    break;
-                case 5:
-                    index = 30;
-                    break;
-                case 6:
-                    index = 33;
-                    break;
-                case 7:
-                    index = 54;
-                    break;
-                case 8:
-                    index = 57;
-                    break;
-                case 9:
-                    index = 60;
-                    break;
-            }
 
-
-            indexHill = index;
-            Console.WriteLine("startscore of block {0} is {1}", randomBlock, blockScore(index));
-            Console.WriteLine("");
-
-
-            // hebben we dit eigenlijk wel nodig?
-
-            /*
-            for (int number = 0; number < 9; number++) // calculate the starting scores of a block
-            {
-                switch (number)
+                int randomBlock = r.Next(9) + 1;  // get a random number
+                switch (randomBlock) // get the correct index
                 {
-                    case 0:
-                        scores[0] = 18 - row1dis - column1dis;
-                        break;
                     case 1:
-                        scores[1] = 18 - row1dis - column2dis;
+                        index = 0;
                         break;
                     case 2:
-                        scores[2] = 18 - row1dis - column3dis;
+                        index = 3;
                         break;
                     case 3:
-                        scores[3] = 18 - row2dis - column1dis;
+                        index = 6;
                         break;
                     case 4:
-                        scores[4] = 18 - row2dis - column2dis;
+                        index = 27;
                         break;
                     case 5:
-                        scores[5] = 18 - row2dis - column3dis;
+                        index = 30;
                         break;
                     case 6:
-                        scores[6] = 18 - row3dis - column1dis;
+                        index = 33;
                         break;
                     case 7:
-                        scores[7] = 18 - row3dis - column2dis;
+                        index = 54;
                         break;
                     case 8:
-                        scores[8] = 18 - row3dis - column3dis;
+                        index = 57;
+                        break;
+                    case 9:
+                        index = 60;
                         break;
                 }
-            }
-            */
 
-            
-            int bestScore = 0;
 
-            int columnNumber = 0;
-            int rowNumber = 0;
+                indexHill = index;
+                Console.WriteLine("startscore of block {0} is {1}", randomBlock, blockScore(index));
+                Console.WriteLine("");
 
-            while (rowNumber < 3)
-            {
-                while (columnNumber < 3)
+
+                #region hebben we dit eigenlijk wel nodig?
+
+                /*
+                for (int number = 0; number < 9; number++) // calculate the starting scores of a block
                 {
-                    if (rowNumber == 3 && columnNumber == 3)
+                    switch (number)
                     {
-                        columnNumber++;
-                        break;
+                        case 0:
+                            scores[0] = 18 - row1dis - column1dis;
+                            break;
+                        case 1:
+                            scores[1] = 18 - row1dis - column2dis;
+                            break;
+                        case 2:
+                            scores[2] = 18 - row1dis - column3dis;
+                            break;
+                        case 3:
+                            scores[3] = 18 - row2dis - column1dis;
+                            break;
+                        case 4:
+                            scores[4] = 18 - row2dis - column2dis;
+                            break;
+                        case 5:
+                            scores[5] = 18 - row2dis - column3dis;
+                            break;
+                        case 6:
+                            scores[6] = 18 - row3dis - column1dis;
+                            break;
+                        case 7:
+                            scores[7] = 18 - row3dis - column2dis;
+                            break;
+                        case 8:
+                            scores[8] = 18 - row3dis - column3dis;
+                            break;
                     }
-
-                    indexHill = index + rowNumber * 9 + columnNumber;
-
-                    if (start[indexHill])
-                    {
-                        columnNumber++;
-                        continue;
-                    }
-                    
-                    int swaprowNumber = rowNumber;
-                    int swapcolumnNumber = columnNumber + 1;
-
-                    while(swaprowNumber < 3)
-                    {
-                        while(swapcolumnNumber < 3)
-                        {
-                            swapIndex = index + swaprowNumber * 9 + swapcolumnNumber;
-
-                            if (start[swapIndex])
-                            {
-                                swapcolumnNumber++;
-                                continue;
-                            }
-
-                            int score = getScore(rowNumber, columnNumber, swaprowNumber, swapcolumnNumber, column1, column2, column3, row1, row2, row3);
-
-                            if(score >= bestScore)
-                            {
-                                bestScore = score;
-                                best1.Clear();
-                                best2.Clear();
-                                best1.Add(indexHill);
-                                best2.Add(swapIndex);
-                            }
-
-                            swapcolumnNumber++;
-                        }
-                        swaprowNumber++;
-                        swapcolumnNumber = 0;
-                    }
-                    
-                    columnNumber++;
                 }
-                columnNumber = 0;
-                rowNumber++;
+                */
+                #endregion
+
+                best1.Clear();
+                best2.Clear();
+
+                int bestScore = 0;
+
+                int columnNumber = 0;
+                int rowNumber = 0;
+
+                while (rowNumber < 3)
+                {
+                    while (columnNumber < 3)
+                    {
+                        if (rowNumber == 3 && columnNumber == 3)
+                        {
+                            columnNumber++;
+                            break;
+                        }
+
+                        indexHill = index + rowNumber * 9 + columnNumber;
+
+                        if (start[indexHill])
+                        {
+                            columnNumber++;
+                            continue;
+                        }
+
+                        int swaprowNumber = rowNumber;
+                        int swapcolumnNumber = columnNumber + 1;
+
+                        while (swaprowNumber < 3)
+                        {
+                            while (swapcolumnNumber < 3)
+                            {
+                                swapIndex = index + swaprowNumber * 9 + swapcolumnNumber;
+
+                                if (start[swapIndex])
+                                {
+                                    swapcolumnNumber++;
+                                    continue;
+                                }
+
+                                int score = getScore(rowNumber, columnNumber, swaprowNumber, swapcolumnNumber, column1, column2, column3, row1, row2, row3);
+
+                                if (score >= bestScore)
+                                {
+                                    bestScore = score;
+                                    best1.Clear();
+                                    best2.Clear();
+                                    best1.Add(indexHill);
+                                    best2.Add(swapIndex);
+                                }
+
+                                swapcolumnNumber++;
+                            }
+                            swaprowNumber++;
+                            swapcolumnNumber = 0;
+                        }
+
+                        columnNumber++;
+                    }
+                    columnNumber = 0;
+                    rowNumber++;
+                }
+
+                swap(bestScore);
+
+                Console.WriteLine("Answer:");
+                printSudoku();
+
+                Console.WriteLine("score of block {0} is {1}", randomBlock, blockScore(index));
+                
+
             }
-
-            swap();
-
-            Console.WriteLine("Answer:");
-            printSudoku();
-
-            Console.WriteLine("score of block {0} is {1}", randomBlock, blockScore(index));
             Console.ReadKey();
-            
         }
-
-
 
 
         public void printSudoku()
@@ -275,6 +281,7 @@ namespace sudoku1
             }
             Console.WriteLine("");
         }
+
         public int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber, int[] column1, int[] column2, int[] column3, int[] row1, int[] row2, int[] row3)
         {
             int score = 0;
@@ -514,7 +521,7 @@ namespace sudoku1
             {
                 score++;
             }
-            if (swapped[sudoku[swapIndex] - 1] == 0)
+            if (swapped[sudoku[swapIndex] - 1] == 1)
             {
                 score--;
             }
@@ -522,16 +529,31 @@ namespace sudoku1
             {
                 score++;
             }
-            if (first[sudoku[indexHill] - 1] == 0)
+            if (first[sudoku[indexHill] - 1] == 1)
             {
                 score--;
             }
             return score;
         }
 
-        public void swap()
+        public void swap(int bestScore)
         {
-            int random = r.Next(best1.Count);
+            int random;
+            if(bestScore == 0)
+            {
+                if (best1.Count > 0)
+                {
+                    random = r.Next(best1.Count + 1);
+                    if (random == best1.Count)
+                        return;
+                }
+                else return;
+                
+            }
+            else
+            {
+                random = r.Next(best1.Count);
+            }                
 
             int temp = sudoku[best1[random]];
             sudoku[best1[random]] = sudoku[best2[random]];
@@ -540,8 +562,17 @@ namespace sudoku1
 
         public int blockScore(int index)
         {
+            Array.Clear(row1, 0, row1.Length);
+            Array.Clear(column1, 0, column1.Length);
+
+            Array.Clear(row2, 0, row2.Length);
+            Array.Clear(column2, 0, column2.Length);
+
+            Array.Clear(row3, 0, row3.Length);
+            Array.Clear(column3, 0, column3.Length);
 
             indexHill = index;
+
             for (int number = 0; number < 3; number++)
             {
                 if (number == 0)
