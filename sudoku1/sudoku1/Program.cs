@@ -32,6 +32,9 @@ namespace sudoku1
         int[] row3 = new int[9];
         int[] column3 = new int[9];
 
+        int[] bestBlockScores = new int[9];
+
+        int randomBlock;
 
         List<int> best1 = new List<int>();
         List<int> best2 = new List<int>();
@@ -101,11 +104,11 @@ namespace sudoku1
             Console.WriteLine("Randomly filled in:");
             printSudoku();
 
-            // na 20000 iteraties alleen nog maar 0, 2 en 3 of 4
-            for (int i = 0; i < 20000; i++)
+            
+            for (int i = 0; i < 10000; i++)
             {
 
-                int randomBlock = r.Next(9) + 1;  // get a random number
+                randomBlock = r.Next(9) + 1;  // get a random number
                 switch (randomBlock) // get the correct index
                 {
                     case 1:
@@ -255,6 +258,8 @@ namespace sudoku1
                 
 
             }
+            Console.WriteLine(string.Join(",", bestBlockScores));
+
             Console.ReadKey();
         }
 
@@ -669,7 +674,10 @@ namespace sudoku1
                 if (i == 0)
                     column3score++;
 
-            return row1score + row2score + row3score + column1score + column2score + column3score;
+            int blockScore = row1score + row2score + row3score + column1score + column2score + column3score;
+            bestBlockScores[randomBlock - 1] = blockScore;
+            return blockScore;
+
         }
     }
 }
