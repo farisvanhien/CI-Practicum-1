@@ -19,6 +19,7 @@ namespace sudoku1
         bool[] start = new bool[81];
         Random r = new Random();
 
+        int index;
         int indexHill;
         int swapIndex;
 
@@ -33,6 +34,9 @@ namespace sudoku1
         int[] column3 = new int[9];
 
         int[] bestBlockScores = new int[9];
+        int[] lastBlockScores = new int[9];
+
+        int counter = 0;
 
         int randomBlock;
 
@@ -41,8 +45,6 @@ namespace sudoku1
 
         public Sudoku()
         {
-
-            int index = 0;
 
             // make grid with input
             for (int rows = 0; rows < 9; rows++)
@@ -105,85 +107,14 @@ namespace sudoku1
             printSudoku();
 
             
-            for (int i = 0; i < 10000; i++)
+            for(int i = 0; i < 500000; i++) // give up; no solution
             {
 
-                randomBlock = r.Next(9) + 1;  // get a random number
-                switch (randomBlock) // get the correct index
-                {
-                    case 1:
-                        index = 0;
-                        break;
-                    case 2:
-                        index = 3;
-                        break;
-                    case 3:
-                        index = 6;
-                        break;
-                    case 4:
-                        index = 27;
-                        break;
-                    case 5:
-                        index = 30;
-                        break;
-                    case 6:
-                        index = 33;
-                        break;
-                    case 7:
-                        index = 54;
-                        break;
-                    case 8:
-                        index = 57;
-                        break;
-                    case 9:
-                        index = 60;
-                        break;
-                }
-
+                getRandomBlock();
 
                 indexHill = index;
-                Console.WriteLine("startscore of block {0} is {1}", randomBlock, blockScore(index));
+                Console.WriteLine("startscore of block {0} is {1}", randomBlock, blockScore());
                 Console.WriteLine("");
-
-
-                #region hebben we dit eigenlijk wel nodig?
-
-                /*
-                for (int number = 0; number < 9; number++) // calculate the starting scores of a block
-                {
-                    switch (number)
-                    {
-                        case 0:
-                            scores[0] = 18 - row1dis - column1dis;
-                            break;
-                        case 1:
-                            scores[1] = 18 - row1dis - column2dis;
-                            break;
-                        case 2:
-                            scores[2] = 18 - row1dis - column3dis;
-                            break;
-                        case 3:
-                            scores[3] = 18 - row2dis - column1dis;
-                            break;
-                        case 4:
-                            scores[4] = 18 - row2dis - column2dis;
-                            break;
-                        case 5:
-                            scores[5] = 18 - row2dis - column3dis;
-                            break;
-                        case 6:
-                            scores[6] = 18 - row3dis - column1dis;
-                            break;
-                        case 7:
-                            scores[7] = 18 - row3dis - column2dis;
-                            break;
-                        case 8:
-                            scores[8] = 18 - row3dis - column3dis;
-                            break;
-                    }
-                }
-                */
-                #endregion
 
                 best1.Clear();
                 best2.Clear();
@@ -254,12 +185,31 @@ namespace sudoku1
                 Console.WriteLine("Answer:");
                 printSudoku();
 
-                Console.WriteLine("score of block {0} is {1}", randomBlock, blockScore(index));
-                
+                Console.WriteLine("score of block {0} is {1}", randomBlock, blockScore());
+
+
+                if (counter >= 100)
+                {
+                    int blocks = 0;
+                    foreach (int block in bestBlockScores)
+                    {
+                        blocks += block;
+                    }
+                    if (blocks == 0)    // check if you got the global max
+                        break;
+
+                    // else randomwalk
+                    counter = 0;
+                    randomWalk();
+                }
+                    
 
             }
             Console.WriteLine(string.Join(",", bestBlockScores));
 
+            // to make sure it doesnt closes
+            Console.ReadKey();
+            Console.ReadKey();
             Console.ReadKey();
         }
 
@@ -282,7 +232,6 @@ namespace sudoku1
                     Console.WriteLine(" -----+-----+-----");
 
                 Console.WriteLine(output);
-                
             }
             Console.WriteLine("");
         }
@@ -553,7 +502,6 @@ namespace sudoku1
                         return;
                 }
                 else return;
-                
             }
             else
             {
@@ -565,7 +513,7 @@ namespace sudoku1
             sudoku[best2[random]] = temp;
         }
 
-        public int blockScore(int index)
+        public int blockScore()
         {
             Array.Clear(row1, 0, row1.Length);
             Array.Clear(column1, 0, column1.Length);
@@ -675,9 +623,92 @@ namespace sudoku1
                     column3score++;
 
             int blockScore = row1score + row2score + row3score + column1score + column2score + column3score;
+            
             bestBlockScores[randomBlock - 1] = blockScore;
+            if (Enumerable.SequenceEqual(bestBlockScores, lastBlockScores))
+            {
+                counter++;
+            }
+            else
+            {
+                bestBlockScores.CopyTo(lastBlockScores, 0);
+                counter = 0;
+            }
+            
             return blockScore;
+        }
 
+        public void getRandomBlock()
+        {
+            randomBlock = r.Next(9) + 1;  // get a random number
+            switch (randomBlock) // get the correct index
+            {
+                case 1:
+                    index = 0;
+                    break;
+                case 2:
+                    index = 3;
+                    break;
+                case 3:
+                    index = 6;
+                    break;
+                case 4:
+                    index = 27;
+                    break;
+                case 5:
+                    index = 30;
+                    break;
+                case 6:
+                    index = 33;
+                    break;
+                case 7:
+                    index = 54;
+                    break;
+                case 8:
+                    index = 57;
+                    break;
+                case 9:
+                    index = 60;
+                    break;
+            }
+        }
+
+        public void randomWalk()
+        {
+            int random1row;
+            int random1column;
+
+            int random2row;
+            int random2column;
+
+            int index1;
+            int index2;
+
+            int i = 0;
+            while(i < 15)
+            {
+                getRandomBlock();
+
+                while (true)
+                {
+                    random1row = r.Next(3);
+                    random1column = r.Next(3);
+                    random2row = r.Next(3);
+                    random2column = r.Next(3);
+                    index1 = index + random1row * 9 + random1column;
+                    index2 = index + random2row * 9 + random2column;
+                    if (index1 != index2 && !start[index1] && !start[index2])
+                    {
+                        break;
+                    }
+                }
+
+                int temp = sudoku[index1];
+                sudoku[index1] = sudoku[index2];
+                sudoku[index2] = temp;
+                printSudoku();
+                i++;
+            }
         }
     }
 }
