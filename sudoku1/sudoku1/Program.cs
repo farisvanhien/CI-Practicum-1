@@ -187,7 +187,6 @@ namespace sudoku1
 
                 Console.WriteLine("score of block {0} is {1}", randomBlock, blockScore());
 
-
                 if (counter >= 100)
                 {
                     int blocks = 0;
@@ -207,7 +206,7 @@ namespace sudoku1
             }
             Console.WriteLine(string.Join(",", bestBlockScores));
 
-            // to make sure it doesnt closes
+            // to make sure it doesn't closes
             Console.ReadKey();
             Console.ReadKey();
             Console.ReadKey();
@@ -493,7 +492,11 @@ namespace sudoku1
         public void swap(int bestScore)
         {
             int random;
-            if(bestScore == 0)
+
+            //if (best1.Count == 0)
+            //    return;
+
+            if (bestScore == 0)
             {
                 if (best1.Count > 0)
                 {
