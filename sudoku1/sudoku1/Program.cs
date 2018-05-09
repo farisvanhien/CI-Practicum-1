@@ -15,6 +15,7 @@ namespace sudoku1
     }
     class Sudoku
     {
+        
         Random r = new Random();
         int threads;
 
@@ -43,11 +44,12 @@ namespace sudoku1
 
         public Sudoku()
         {
+            Console.Title = "SudokuSolver 9000";
             Stopwatch stopwatch = new Stopwatch();
 
             // make grid with input
-            Console.WriteLine("Hello to SudokuSolver 9000");
-            Console.WriteLine("Please enter your sudoku in this format");
+            Console.WriteLine("Welcome to SudokuSolver 9000");
+            Console.WriteLine("Please enter your sudoku in this format:");
             Console.Write("1 0 0 0 0 0 0 0 0\n0 2 0 0 0 0 0 0 0\n0 0 3 0 0 0 0 0 0\n0 0 0 4 7 9 0 0 0\n0 0 0 2 5 8 0 0 0\n0 0 0 1 3 6 0 0 0\n0 0 0 0 0 0 7 0 0\n0 0 0 0 0 0 0 8 0\n0 0 0 0 0 0 0 0 9\n");
             Console.WriteLine("");
 
