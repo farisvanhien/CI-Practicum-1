@@ -18,23 +18,18 @@ namespace sudoku1
         int[] sudoku = new int[81];
         bool[] start = new bool[81];
         Random r = new Random();
-
         int index;
         int indexHill;
         int swapIndex;
 
-        // index 0 = number 1... etc
-        int[] row1 = new int[9];
-        int[] column1 = new int[9];
+        int[,] rows = new int[9, 9];
+        int[,] columns = new int[9, 9];
 
-        int[] row2 = new int[9];
-        int[] column2 = new int[9];
+        int[] rowScores = new int[9];
+        int[] columnScores = new int[9];
 
-        int[] row3 = new int[9];
-        int[] column3 = new int[9];
-
-        int[] bestBlockScores = new int[9];
-        int[] lastBlockScores = new int[9];
+        int[] lastRowScores = new int[9];
+        int[] lastColumnScores = new int[9];
 
         int counter = 0;
 
@@ -45,7 +40,6 @@ namespace sudoku1
 
         public Sudoku()
         {
-
             // make grid with input
             for (int rows = 0; rows < 9; rows++)
             {
@@ -103,18 +97,55 @@ namespace sudoku1
                 }
             }
 
+            indexHill = 0;
+
+            for (int number = 0; number < 9; number++)
+            {
+                int modulus = indexHill % 9;
+                int startRow = indexHill - modulus;
+                rows[number, sudoku[startRow] - 1]++;
+                startRow++;
+                while (startRow % 9 != 0)
+                {
+                    rows[number, sudoku[startRow] - 1]++;
+                    startRow++;
+                }
+                int startColumn = modulus;
+                while (startColumn < 81)
+                {
+                    columns[number, sudoku[startColumn] - 1]++;
+                    startColumn += 9;
+                }
+
+                indexHill += 10;
+            }
+
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    if (rows[i, j] == 0)
+                        rowScores[i]++;
+
+                    if (columns[i, j] == 0)
+                        columnScores[i]++;
+                }
+            }
+
+            Console.WriteLine("Row Scores:");
+            Console.WriteLine(string.Join(",", rowScores));
+
+            Console.WriteLine("Column Scores:");
+            Console.WriteLine(string.Join(",", columnScores));
+
             Console.WriteLine("Randomly filled in:");
             printSudoku();
 
-            
-            for(int i = 0; i < 500000; i++) // give up; no solution
+            for(int i = 0; i > -1; i++) // give up; no solution
             {
-
                 getRandomBlock();
 
                 indexHill = index;
-                Console.WriteLine("startscore of block {0} is {1}", randomBlock, blockScore());
-                Console.WriteLine("");
 
                 best1.Clear();
                 best2.Clear();
@@ -157,13 +188,18 @@ namespace sudoku1
                                     continue;
                                 }
 
-                                int score = getScore(rowNumber, columnNumber, swaprowNumber, swapcolumnNumber, column1, column2, column3, row1, row2, row3);
+                                int score = getScore(rowNumber, columnNumber, swaprowNumber, swapcolumnNumber);
 
-                                if (score >= bestScore)
+                                if (score > bestScore)
                                 {
                                     bestScore = score;
                                     best1.Clear();
                                     best2.Clear();
+                                    best1.Add(indexHill);
+                                    best2.Add(swapIndex);
+                                }
+                                else if(score == bestScore)
+                                {
                                     best1.Add(indexHill);
                                     best2.Add(swapIndex);
                                 }
@@ -180,31 +216,46 @@ namespace sudoku1
                     rowNumber++;
                 }
 
-                swap(bestScore);
+                if (best1.Count > 0)
+                    swap(bestScore);
+                else counter++;
 
                 Console.WriteLine("Answer:");
                 printSudoku();
+                Console.WriteLine("RandomBlock = {0}", randomBlock);
+                Console.WriteLine("Row Scores:");
+                Console.WriteLine(string.Join(",", rowScores));
 
-                Console.WriteLine("score of block {0} is {1}", randomBlock, blockScore());
+                Console.WriteLine("Column Scores:");
+                Console.WriteLine(string.Join(",", columnScores));
 
-                if (counter >= 100)
+                if (counter == 50)
                 {
-                    int blocks = 0;
-                    foreach (int block in bestBlockScores)
+                    int score = 0;
+                    foreach (int row in rowScores)
                     {
-                        blocks += block;
+                        score += row;
                     }
-                    if (blocks == 0)    // check if you got the global max
+                    foreach(int column in columnScores)
+                    {
+                        score += column;
+                    }
+                    if (score == 0)    // check if you got the global max
                         break;
 
                     // else randomwalk
-                    counter = 0;
                     randomWalk();
-                }
-                    
-
+                    counter = 0;
+                }  
             }
-            Console.WriteLine(string.Join(",", bestBlockScores));
+
+            
+            Console.WriteLine("Row Scores:");
+            Console.WriteLine(string.Join(",", rowScores));
+
+            Console.WriteLine("Column Scores:");
+            Console.WriteLine(string.Join(",", columnScores));
+
 
             // to make sure it doesn't closes
             Console.ReadKey();
@@ -235,254 +286,46 @@ namespace sudoku1
             Console.WriteLine("");
         }
 
-        public int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber, int[] column1, int[] column2, int[] column3, int[] row1, int[] row2, int[] row3)
+        public int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber)
         {
             int score = 0;
-            // dit kan wss beter...
-            // mss met switch case?
-            if (rowNumber == 0)
-            {
-                if (columnNumber == 0)
-                {
-                    if (swaprowNumber == 0)
-                    {
-                        if (swapcolumnNumber == 1)           // 0,0 en 0,1
-                        {
-                            score = swapScore(column1, column2);
-                        }
-                        else if (swapcolumnNumber == 2)      // 0,0 en 0,2
-                        {
-                            score = swapScore(column1, column3);
-                        }
-                    }
-                    else if (swaprowNumber == 1)
-                    {
-                        if (swapcolumnNumber == 0)          // 0,0 en 1,0
-                        {
-                            score = swapScore(row1, row2);
-                        }
-                        else if (swapcolumnNumber == 1)     // 0,0 en 1,1
-                        {
-                            score = swapScore(row1, row2) + swapScore(column1, column2);
-                        }
-                        else                                // 0,0 en 1,2
-                        {
-                            score = swapScore(row1, row2) + swapScore(column1, column3);
-                        }
-                    }
-                    else
-                    {
-                        if (swapcolumnNumber == 0)          // 0,0 en 2,0   
-                        {
-                            score = swapScore(row1, row3);
-                        }
-                        else if (swapcolumnNumber == 1)     // 0,0 en 2,1
-                        {
-                            score = swapScore(row1, row3) + swapScore(column1, column2);
-                        }
-                        else                                // 0,0 en 2,2
-                        {
-                            score = swapScore(row1, row3) + swapScore(column1, column3);
-                        }
-                    }
-                }
-                else if (columnNumber == 1)
-                {
-                    if (swaprowNumber == 0)
-                    {
-                        if (swapcolumnNumber == 2)          // 0,1 en 0,2
-                        {
-                            score = swapScore(column2, column3);
-                        }
-                    }
-                    else if (swaprowNumber == 1)
-                    {
-                        if (swapcolumnNumber == 0)          // 0,1 en 1,0
-                        {
-                            score = swapScore(column2, column1) + swapScore(row1, row2);
-                        }
-                        else if (swapcolumnNumber == 1)     // 0,1 en 1,1
-                        {
-                            score = swapScore(row1, row2);
-                        }
-                        else                                // 0,1 en 1,2
-                        {
-                            score = swapScore(column2, column3) + swapScore(row1, row2);
-                        }
-                    }
-                    else
-                    {
-                        if (swapcolumnNumber == 0)          // 0,1 en 2,0
-                        {
-                            score = swapScore(column2, column1) + swapScore(row1, row3);
-                        }
-                        else if (swapcolumnNumber == 1)     // 0,1 en 2,1
-                        {
-                            score = swapScore(row1, row3);
-                        }
-                        else                                // 0,1 en 2,2
-                        {
-                            score = swapScore(column2, column3) + swapScore(row1, row2);
-                        }
-                    }
-                }
-                else
-                {
-                    if (swaprowNumber == 1)
-                    {
-                        if (swapcolumnNumber == 0)          // 0,2 en 1,0
-                        {
-                            score = swapScore(column3, column1) + swapScore(row1, row2);
-                        }
-                        else if (swapcolumnNumber == 1)     // 0,2 en 1,1
-                        {
-                            score = swapScore(column3, column2) + swapScore(row1, row2);
-                        }
-                        else                                // 0,2 en 1,2
-                        {
-                            score = swapScore(row1, row2);
-                        }
-                    }
-                    else if (swaprowNumber == 2)
-                    {
-                        if (swapcolumnNumber == 0)          // 0,2 en 2,0
-                        {
-                            score = swapScore(column3, column1) + swapScore(row1, row3);
-                        }
-                        else if (swapcolumnNumber == 1)     // 0,2 en 2,1
-                        {
-                            score = swapScore(column3, column2) + swapScore(row1, row3);
-                        }
-                        else                                // 0,2 en 2,2
-                        {
-                            score = swapScore(row1, row3);
-                        }
-                    }
-                }
-            }
-            else if (rowNumber == 1)
-            {
-                if (columnNumber == 0)
-                {
-                    if (swaprowNumber == 1)
-                    {
-                        if (swapcolumnNumber == 1)          // 1,0 en 1,1
-                        {
-                            score = swapScore(column1, column2);
-                        }
-                        else if (swapcolumnNumber == 2)     // 1,0 en 1,2
-                        {
-                            score = swapScore(column1, column3);
-                        }
+            int columnsOffset = (randomBlock % 3) * 3;
+            int rowsOffset = (randomBlock / 3) * 3;
 
-                    }
-                    else if (swaprowNumber == 2)
-                    {
-                        if (swapcolumnNumber == 0)          // 1,0 en 2,0
-                        {
-                            score = swapScore(row2, row3);
-                        }
-                        else if (swapcolumnNumber == 1)     // 1,0 en 2,1
-                        {
-                            score = swapScore(column1, column2) + swapScore(row2, row3);
-                        }
-                        else                                // 1,0 en 2,2
-                        {
-                            score = swapScore(column1, column3) + swapScore(row2, row3);
-                        }
-                    }
-                }
-                else if (columnNumber == 1)
-                {
-                    if (swaprowNumber == 1)
-                    {
-                        if (swapcolumnNumber == 2)          // 1,1 en 1,2
-                        {
-                            score = swapScore(column2, column3);
-                        }
-                    }
-                    else if (swaprowNumber == 2)
-                    {
-                        if (swapcolumnNumber == 0)          // 1,1 en 2,0
-                        {
-                            score = swapScore(column2, column1) + swapScore(row2, row3);
-                        }
-                        else if (swapcolumnNumber == 1)     // 1,1 en 2,1
-                        {
-                            score = swapScore(row2, row3);
-                        }
-                        else                                // 1,1 en 2,2
-                        {
-                            score = swapScore(column2, column3) + swapScore(row2, row3);
-                        }
-                    }
-                }
-                else
-                {
-                    if (swaprowNumber == 2)
-                    {
-                        if (swapcolumnNumber == 0)          // 1,2 en 2,0
-                        {
-                            score = swapScore(column3, column1) + swapScore(row2, row3);
-                        }
-                        else if (swapcolumnNumber == 1)     // 1,2 en 2,1
-                        {
-                            score = swapScore(column3, column2) + swapScore(row2, row3);
-                        }
-                        else                                // 1,2 en 2,2
-                        {
-                            score = swapScore(row2, row3);
-                        }
-                    }
-                }
+            if (rowNumber == swaprowNumber)
+            {
+                score = swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
+            }
+            else if(columnNumber == swapcolumnNumber)
+            {
+                score = swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset);
             }
             else
             {
-                if (columnNumber == 0)
-                {
-                    if (swaprowNumber == 2)
-                    {
-                        if (swapcolumnNumber == 1)          // 2,0 en 2,1
-                        {
-                            score = swapScore(column1, column2);
-                        }
-                        else if (swapcolumnNumber == 2)     // 2,0 en 2,2
-                        {
-                            score = swapScore(column1, column3);
-                        }
-                    }
-                }
-                else if (columnNumber == 1)
-                {
-                    if (swaprowNumber == 2)
-                    {
-                        if (swapcolumnNumber == 2)          // 2,1 en 2,2
-                        {
-                            score = swapScore(column2, column3);
-                        }
-                    }
-                }
+                score = swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset) + swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
             }
 
             return score;
         }
 
-        public int swapScore(int[] first, int[] swapped)
+        public int swapScore(int[,] first, int number1, int number2)
         {
             int score = 0;
-            if (first[sudoku[swapIndex] - 1] == 0)
+            int a = sudoku[swapIndex] - 1;
+            int b = sudoku[indexHill] - 1;
+            if (first[number1, a] == 0)
             {
                 score++;
             }
-            if (swapped[sudoku[swapIndex] - 1] == 1)
+            if (first[number2, a] == 1)
             {
                 score--;
             }
-            if (swapped[sudoku[indexHill] - 1] == 0)
+            if (first[number2, b] == 0)
             {
                 score++;
             }
-            if (first[sudoku[indexHill] - 1] == 1)
+            if (first[number1, b] == 1)
             {
                 score--;
             }
@@ -493,18 +336,11 @@ namespace sudoku1
         {
             int random;
 
-            //if (best1.Count == 0)
-            //    return;
-
             if (bestScore == 0)
             {
-                if (best1.Count > 0)
-                {
-                    random = r.Next(best1.Count + 1);
-                    if (random == best1.Count)
-                        return;
-                }
-                else return;
+                random = r.Next(best1.Count + 1);
+                if (random == best1.Count)
+                    return;
             }
             else
             {
@@ -514,163 +350,141 @@ namespace sudoku1
             int temp = sudoku[best1[random]];
             sudoku[best1[random]] = sudoku[best2[random]];
             sudoku[best2[random]] = temp;
+
+            updateScore(best1[random], best2[random]);
         }
 
-        public int blockScore()
+        public void didScoreChange()
         {
-            Array.Clear(row1, 0, row1.Length);
-            Array.Clear(column1, 0, column1.Length);
-
-            Array.Clear(row2, 0, row2.Length);
-            Array.Clear(column2, 0, column2.Length);
-
-            Array.Clear(row3, 0, row3.Length);
-            Array.Clear(column3, 0, column3.Length);
-
-            indexHill = index;
-
-            for (int number = 0; number < 3; number++)
-            {
-                if (number == 0)
-                {
-                    int modulus = indexHill % 9;
-                    int startRow = indexHill - modulus;
-                    row1[sudoku[startRow] - 1]++;
-                    startRow++;
-                    while (startRow % 9 != 0)
-                    {
-                        row1[sudoku[startRow] - 1]++;
-                        startRow++;
-                    }
-                    int startColumn = modulus;
-                    while (startColumn < 81)
-                    {
-                        column1[sudoku[startColumn] - 1]++;
-                        startColumn += 9;
-                    }
-                }
-                else if (number == 1)
-                {
-                    int modulus = indexHill % 9;
-                    int startRow = indexHill - modulus;
-                    row2[sudoku[startRow] - 1]++;
-                    startRow++;
-                    while (startRow % 9 != 0)
-                    {
-                        row2[sudoku[startRow] - 1]++;
-                        startRow++;
-                    }
-                    int startColumn = modulus;
-                    while (startColumn < 81)
-                    {
-                        column2[sudoku[startColumn] - 1]++;
-                        startColumn += 9;
-                    }
-                }
-                else
-                {
-                    int modulus = indexHill % 9;
-                    int startRow = indexHill - modulus;
-                    row3[sudoku[startRow] - 1]++;
-                    startRow++;
-                    while (startRow % 9 != 0)
-                    {
-                        row3[sudoku[startRow] - 1]++;
-                        startRow++;
-                    }
-                    int startColumn = modulus;
-                    while (startColumn < 81)
-                    {
-                        column3[sudoku[startColumn] - 1]++;
-                        startColumn += 9;
-                    }
-                }
-
-                indexHill += 10;
-
-            }
-
-            int[] scores = new int[9];
-
-            int row1score = 0;
-            int column1score = 0;
-
-            int row2score = 0;
-            int column2score = 0;
-
-            int row3score = 0;
-            int column3score = 0;
-
-            foreach (int i in row1)
-                if (i == 0)
-                    row1score++;
-
-            foreach (int i in column1)
-                if (i == 0)
-                    column1score++;
-
-            foreach (int i in row2)
-                if (i == 0)
-                    row2score++;
-
-            foreach (int i in column2)
-                if (i == 0)
-                    column2score++;
-
-            foreach (int i in row3)
-                if (i == 0)
-                    row3score++;
-
-            foreach (int i in column3)
-                if (i == 0)
-                    column3score++;
-
-            int blockScore = row1score + row2score + row3score + column1score + column2score + column3score;
-            
-            bestBlockScores[randomBlock - 1] = blockScore;
-            if (Enumerable.SequenceEqual(bestBlockScores, lastBlockScores))
+            if (Enumerable.SequenceEqual(rowScores, lastRowScores) && Enumerable.SequenceEqual(columnScores, lastColumnScores))
             {
                 counter++;
             }
             else
             {
-                bestBlockScores.CopyTo(lastBlockScores, 0);
+                rowScores.CopyTo(lastRowScores, 0);
+                columnScores.CopyTo(lastColumnScores, 0);
                 counter = 0;
             }
+        }
+
+        public void updateScore(int index1, int index2)
+        {
+            didScoreChange();
             
-            return blockScore;
+            int row1 = index1 / 9;
+            int row2 = index2 / 9;
+
+            int column1 = index1 % 9;
+            int column2 = index2 % 9;
+
+            rowScores[row1] = 0;
+            rowScores[row2] = 0;
+            columnScores[column1] = 0;
+            columnScores[column2] = 0;
+
+            Array.Clear(rows, row1 * 9, 9);
+            Array.Clear(rows, row2 * 9, 9);
+
+            Array.Clear(columns, column1 * 9, 9);
+            Array.Clear(columns, column2 * 9, 9);
+
+            if(row1 != row2)
+            {
+                int startRow = index1 - column1;
+                rows[row1, sudoku[startRow] - 1]++;
+                startRow++;
+                while (startRow % 9 != 0)
+                {
+                    rows[row1, sudoku[startRow] - 1]++;
+                    startRow++;
+                }
+            }
+
+            if (column1 != column2)
+            {
+                int startColumn = column2;
+                while (startColumn < 81)
+                {
+                    columns[column1, sudoku[startColumn] - 1]++;
+                    startColumn += 9;
+                }
+            }
+
+            if(row1 != row2)
+            {
+                int startRow = index2 - column2;
+                rows[row2, sudoku[startRow] - 1]++;
+                startRow++;
+                while (startRow % 9 != 0)
+                {
+                    rows[row2, sudoku[startRow] - 1]++;
+                    startRow++;
+                }
+            }
+            
+            if(column1 != column2)
+            {
+                int startColumn = column2;
+                while (startColumn < 81)
+                {
+                    columns[column2, sudoku[startColumn] - 1]++;
+                    startColumn += 9;
+                }
+            }
+
+            for (int i = 0; i < 9; i++)
+            {
+                if (row1 != row2)
+                {
+                    if (rows[row1, i] == 0)
+                        rowScores[row1]++;
+
+                    if (rows[row2, i] == 0)
+                        rowScores[row2]++;
+                }
+
+                if (column1 != column2)
+                {
+                    if (columns[column1, i] == 0)
+                        columnScores[column1]++;
+
+                    if (columns[column2, i] == 0)
+                        columnScores[column2]++;
+                }
+            }
         }
 
         public void getRandomBlock()
         {
-            randomBlock = r.Next(9) + 1;  // get a random number
+            randomBlock = r.Next(9);  // get a random number
             switch (randomBlock) // get the correct index
             {
-                case 1:
+                case 0:
                     index = 0;
                     break;
-                case 2:
+                case 1:
                     index = 3;
                     break;
-                case 3:
+                case 2:
                     index = 6;
                     break;
-                case 4:
+                case 3:
                     index = 27;
                     break;
-                case 5:
+                case 4:
                     index = 30;
                     break;
-                case 6:
+                case 5:
                     index = 33;
                     break;
-                case 7:
+                case 6:
                     index = 54;
                     break;
-                case 8:
+                case 7:
                     index = 57;
                     break;
-                case 9:
+                case 8:
                     index = 60;
                     break;
             }
@@ -688,7 +502,7 @@ namespace sudoku1
             int index2;
 
             int i = 0;
-            while(i < 15)
+            while(i < 20)
             {
                 getRandomBlock();
 
@@ -711,6 +525,8 @@ namespace sudoku1
                 sudoku[index2] = temp;
                 printSudoku();
                 i++;
+
+                updateScore(index1, index2);
             }
         }
     }
