@@ -41,7 +41,7 @@ namespace sudoku1
         List<int> best1 = new List<int>();
         List<int> best2 = new List<int>();
 
-        List<string> localMax = new List<string>();
+        HashSet<string> localMax = new HashSet<string>();
 
         public Sudoku()
         {
@@ -80,7 +80,7 @@ namespace sudoku1
             }
 
             Console.WriteLine("");
-            Console.WriteLine("Solving Sudoku...");
+            Console.WriteLine("Solving sudoku...");
             Console.WriteLine("");
             stopwatch.Start();
 
@@ -161,8 +161,9 @@ namespace sudoku1
                 }
             }
 
-            for (int i = 0; i < 123456789; i++) // give up; no solution
+            for (int i = 0; i < 50000000; i++) // give up; no solution
             {
+                if (i % 1000000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);
                 getRandomBlock();
 
                 indexHill = index;
@@ -256,42 +257,33 @@ namespace sudoku1
                     {
                         Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
                         printSudoku(sudoku);
-                        Console.WriteLine("duplicates " + counter1);
-                        Console.WriteLine("unique " + localMax.Count());
+                        Console.WriteLine("duplicates = " + counter1);
+                        Console.WriteLine("uniques = " + localMax.Count());
                         Console.WriteLine("ratio = " + counter1 / (float)localMax.Count);
-                        Console.WriteLine("");
-                        Console.WriteLine("Press Escape to exit");
-                        while (true)
-                        {
-                            if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                                Environment.Exit(0);
-                        }
+                        Console.WriteLine("states = " + i);
+                        Exit();
                     }
 
-                    if (!localMax.Contains(string.Join(";", sudoku)))
-                        localMax.Add(string.Join(";", sudoku));
-                    else if (localMax.Contains(string.Join(";", sudoku))) counter1++;
+                   
+                    if(!localMax.Add(string.Join("", sudoku)))
+                        counter1++;
 
                     // else randomwalk
-                    if (counter1 % 10 != 0)
-                        randomWalk(5);
-                    else
+                    if (counter1 % 250 == 0)
+                        randomWalk(20);
+                    else if (counter1 % 10 == 0)
                         randomWalk(12);
+                    else
+                        randomWalk(5);
                     counter = 0;
                 }
             }
 
             Console.WriteLine("I could not find the solution :(");
-            Console.WriteLine("duplicates " + counter1);
-            Console.WriteLine("unique " + localMax.Count());
+            Console.WriteLine("duplicates = " + counter1);
+            Console.WriteLine("uniques = " + localMax.Count());
             Console.WriteLine("ratio = " + counter1 / (float)localMax.Count);
-            Console.WriteLine("");
-            Console.WriteLine("Press Escape to exit");
-            while (true)
-            {
-                if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                    Environment.Exit(0);
-            }
+            Exit();
         }
 
 
@@ -315,6 +307,17 @@ namespace sudoku1
                 Console.WriteLine(output);
             }
             
+        }
+
+        public void Exit()
+        {
+            Console.WriteLine("");
+            Console.WriteLine("Press Esc to exit");
+            while (true)
+            {
+                if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    Environment.Exit(0);
+            }
         }
 
         public int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber)
