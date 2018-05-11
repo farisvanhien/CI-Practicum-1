@@ -15,13 +15,11 @@ namespace sudoku1
     }
     class Sudoku
     {
-        
         Random r = new Random();
-        int threads;
 
         int[] sudoku = new int[81];
         bool[] start = new bool[81];
-        
+
         int index;
         int indexHill;
         int swapIndex;
@@ -36,11 +34,14 @@ namespace sudoku1
         int[] lastColumnScores = new int[9];
 
         int counter = 0;
+        int counter1 = 0;
 
         int randomBlock;
 
         List<int> best1 = new List<int>();
         List<int> best2 = new List<int>();
+
+        List<string> localMax = new List<string>();
 
         public Sudoku()
         {
@@ -79,219 +80,222 @@ namespace sudoku1
             }
 
             Console.WriteLine("");
-            Console.WriteLine("How many threads do you want me to use?");
-            while (true)
-            {
-                if (int.TryParse(Console.ReadLine(), out threads))
-                {
-                    break;
-                }
-                else Console.WriteLine("Please enter a single integer");
-            }
-
-            Console.WriteLine("");
             Console.WriteLine("Solving Sudoku...");
             Console.WriteLine("");
             stopwatch.Start();
 
-            Parallel.For(0, threads, (thread, status) => {
-                 
-                 for (int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
-                 {
-                    // initiate the not-fixed
-                    for (int verticalBlock = 0; verticalBlock < 3; verticalBlock++)
-                     {
-                         List<int> numbers = new List<int>();
-                         for (int verticalNumber = 0; verticalNumber < 3; verticalNumber++)
-                         {
-                             for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
-                             {
-                                 index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
-
-                                 if (sudoku[index] != 0)
-                                 {
-                                     numbers.Add(sudoku[index]);
-                                 }
-                             }
-                         }
-
-                         for (int verticalNumber = 0; verticalNumber < 3; verticalNumber++)
-                         {
-                             for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
-                             {
-                                 index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
-
-                                 if (!start[index])  // free space
-                                {
-                                     int random = r.Next(9) + 1;  // get a random number
-
-                                    while (numbers.Contains(random))    // only place unique numbers
-                                    {
-                                         random++;
-                                         if (random > 9) random = 1;
-                                     }
-                                     sudoku[index] = random;     // place the number
-                                    numbers.Add(random);        // add it to the list to avoid getting the same number
-                                }
-                             }
-                         }
-                     }
-                 }
-
-                 indexHill = 0;
-
-                 for (int number = 0; number < 9; number++)
-                 {
-                     int modulus = indexHill % 9;
-                     int startRow = indexHill - modulus;
-                     rows[number, sudoku[startRow] - 1]++;
-                     startRow++;
-                     while (startRow % 9 != 0)
-                     {
-                         rows[number, sudoku[startRow] - 1]++;
-                         startRow++;
-                     }
-                     int startColumn = modulus;
-                     while (startColumn < 81)
-                     {
-                         columns[number, sudoku[startColumn] - 1]++;
-                         startColumn += 9;
-                     }
-
-                     indexHill += 10;
-                 }
-
-                 for (int i = 0; i < 9; i++)
-                 {
-                     for (int j = 0; j < 9; j++)
-                     {
-                         if (rows[i, j] == 0)
-                             rowScores[i]++;
-
-                         if (columns[i, j] == 0)
-                             columnScores[i]++;
-                     }
-                 }
-
-                 for (uint i = 0; i < uint.MaxValue; i++) // give up; no solution
+            for (int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
+            {
+                // initiate the not-fixed
+                for (int verticalBlock = 0; verticalBlock < 3; verticalBlock++)
                 {
-                     getRandomBlock();
+                    List<int> numbers = new List<int>();
+                    for (int verticalNumber = 0; verticalNumber < 3; verticalNumber++)
+                    {
+                        for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
+                        {
+                            index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
 
-                     indexHill = index;
+                            if (sudoku[index] != 0)
+                            {
+                                numbers.Add(sudoku[index]);
+                            }
+                        }
+                    }
 
-                     best1.Clear();
-                     best2.Clear();
+                    for (int verticalNumber = 0; verticalNumber < 3; verticalNumber++)
+                    {
+                        for (int horizontalNumber = 0; horizontalNumber < 3; horizontalNumber++)
+                        {
+                            index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
 
-                     int bestScore = 0;
+                            if (!start[index])  // free space
+                            {
+                                int random = r.Next(9) + 1;  // get a random number
 
-                     int columnNumber = 0;
-                     int rowNumber = 0;
+                                while (numbers.Contains(random))    // only place unique numbers
+                                {
+                                    random++;
+                                    if (random > 9) random = 1;
+                                }
+                                sudoku[index] = random;     // place the number
+                                numbers.Add(random);        // add it to the list to avoid getting the same number
+                            }
+                        }
+                    }
+                }
+            }
 
-                     while (rowNumber < 3)
-                     {
-                         while (columnNumber < 3)
-                         {
-                             if (rowNumber == 3 && columnNumber == 3)
-                             {
-                                 columnNumber++;
-                                 break;
-                             }
+            indexHill = 0;
 
-                             indexHill = index + rowNumber * 9 + columnNumber;
+            for (int number = 0; number < 9; number++)
+            {
+                int modulus = indexHill % 9;
+                int startRow = indexHill - modulus;
+                rows[number, sudoku[startRow] - 1]++;
+                startRow++;
+                while (startRow % 9 != 0)
+                {
+                    rows[number, sudoku[startRow] - 1]++;
+                    startRow++;
+                }
+                int startColumn = modulus;
+                while (startColumn < 81)
+                {
+                    columns[number, sudoku[startColumn] - 1]++;
+                    startColumn += 9;
+                }
 
-                             if (start[indexHill])
-                             {
-                                 columnNumber++;
-                                 continue;
-                             }
+                indexHill += 10;
+            }
 
-                             int swaprowNumber = rowNumber;
-                             int swapcolumnNumber = columnNumber + 1;
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    if (rows[i, j] == 0)
+                        rowScores[i]++;
 
-                             while (swaprowNumber < 3)
-                             {
-                                 while (swapcolumnNumber < 3)
-                                 {
-                                     swapIndex = index + swaprowNumber * 9 + swapcolumnNumber;
+                    if (columns[i, j] == 0)
+                        columnScores[i]++;
+                }
+            }
 
-                                     if (start[swapIndex])
-                                     {
-                                         swapcolumnNumber++;
-                                         continue;
-                                     }
+            for (int i = 0; i < 123456789; i++) // give up; no solution
+            {
+                getRandomBlock();
 
-                                     int score = getScore(rowNumber, columnNumber, swaprowNumber, swapcolumnNumber);
+                indexHill = index;
 
-                                     if (score > bestScore)
-                                     {
-                                         bestScore = score;
-                                         best1.Clear();
-                                         best2.Clear();
-                                         best1.Add(indexHill);
-                                         best2.Add(swapIndex);
-                                     }
-                                     else if (score == bestScore)
-                                     {
-                                         best1.Add(indexHill);
-                                         best2.Add(swapIndex);
-                                     }
+                best1.Clear();
+                best2.Clear();
 
-                                     swapcolumnNumber++;
-                                 }
-                                 swaprowNumber++;
-                                 swapcolumnNumber = 0;
-                             }
+                int bestScore = 0;
 
-                             columnNumber++;
-                         }
-                         columnNumber = 0;
-                         rowNumber++;
-                     }
+                int columnNumber = 0;
+                int rowNumber = 0;
 
-                     if (best1.Count > 0)
-                         swap(bestScore);
-                     else counter++;
+                while (rowNumber < 3)
+                {
+                    while (columnNumber < 3)
+                    {
+                        if (rowNumber == 3 && columnNumber == 3)
+                        {
+                            columnNumber++;
+                            break;
+                        }
 
-                     if (counter == 50)
-                     {
-                         int score = 0;
-                         foreach (int row in rowScores)
-                         {
-                             score += row;
-                         }
-                         foreach (int column in columnScores)
-                         {
-                             score += column;
-                         }
-                         if (score == 0)    // check if you got the global max
-                         {
-                            Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
-                             printSudoku();
-                             break;
-                         }
-                            
-                        // else randomwalk
-                        randomWalk();
-                        counter = 0;
-                     }
-                 }
-                 
-                 status.Stop();
-                 Console.WriteLine("I could not find the solution :(");
-                 Console.WriteLine("");
-                 Console.WriteLine("Press Escape to exit");
-                 while (true)
-                 {
-                     if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                         Environment.Exit(0);
-                 }
-             });
+                        indexHill = index + rowNumber * 9 + columnNumber;
 
-            
+                        if (start[indexHill])
+                        {
+                            columnNumber++;
+                            continue;
+                        }
+
+                        int swaprowNumber = rowNumber;
+                        int swapcolumnNumber = columnNumber + 1;
+
+                        while (swaprowNumber < 3)
+                        {
+                            while (swapcolumnNumber < 3)
+                            {
+                                swapIndex = index + swaprowNumber * 9 + swapcolumnNumber;
+
+                                if (start[swapIndex])
+                                {
+                                    swapcolumnNumber++;
+                                    continue;
+                                }
+
+                                int score = getScore(rowNumber, columnNumber, swaprowNumber, swapcolumnNumber);
+
+                                if (score > bestScore)
+                                {
+                                    bestScore = score;
+                                    best1.Clear();
+                                    best2.Clear();
+                                    best1.Add(indexHill);
+                                    best2.Add(swapIndex);
+                                }
+                                else if (score == bestScore)
+                                {
+                                    best1.Add(indexHill);
+                                    best2.Add(swapIndex);
+                                }
+
+                                swapcolumnNumber++;
+                            }
+                            swaprowNumber++;
+                            swapcolumnNumber = 0;
+                        }
+
+                        columnNumber++;
+                    }
+                    columnNumber = 0;
+                    rowNumber++;
+                }
+
+                if (best1.Count > 0)
+                    swap(bestScore);
+                else counter++;
+
+                if (counter == 25)
+                {
+                    int score = 0;
+                    foreach (int row in rowScores)
+                    {
+                        score += row;
+                    }
+                    foreach (int column in columnScores)
+                    {
+                        score += column;
+                    }
+                
+                    if (score == 0)    // check if you got the global max
+                    {
+                        Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
+                        printSudoku(sudoku);
+                        Console.WriteLine("duplicates " + counter1);
+                        Console.WriteLine("unique " + localMax.Count());
+                        Console.WriteLine("ratio = " + counter1 / (float)localMax.Count);
+                        Console.WriteLine("");
+                        Console.WriteLine("Press Escape to exit");
+                        while (true)
+                        {
+                            if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                                Environment.Exit(0);
+                        }
+                    }
+
+                    if (!localMax.Contains(string.Join(";", sudoku)))
+                        localMax.Add(string.Join(";", sudoku));
+                    else if (localMax.Contains(string.Join(";", sudoku))) counter1++;
+
+                    // else randomwalk
+                    if (counter1 % 10 != 0)
+                        randomWalk(5);
+                    else
+                        randomWalk(12);
+                    counter = 0;
+                }
+            }
+
+            Console.WriteLine("I could not find the solution :(");
+            Console.WriteLine("duplicates " + counter1);
+            Console.WriteLine("unique " + localMax.Count());
+            Console.WriteLine("ratio = " + counter1 / (float)localMax.Count);
+            Console.WriteLine("");
+            Console.WriteLine("Press Escape to exit");
+            while (true)
+            {
+                if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                    Environment.Exit(0);
+            }
         }
 
 
-        public void printSudoku()
+        public void printSudoku(int[] Sudoku)
         {
             Console.WriteLine("");
             for (int k = 0; k < 9; k++)
@@ -302,20 +306,13 @@ namespace sudoku1
                     if (l % 3 == 0 && l % 9 != 0)
                         output += "|";
                     else output += " ";
-                    output += sudoku[k * 9 + l];
+                    output += Sudoku[k * 9 + l];
 
                 }
                 if (k % 3 == 0 && k != 0)
                     Console.WriteLine(" -----+-----+-----");
 
                 Console.WriteLine(output);
-            }
-            Console.WriteLine("");
-            Console.WriteLine("Press Escape to exit");
-            while (true)
-            {
-                if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                    Environment.Exit(0);
             }
             
         }
@@ -330,7 +327,7 @@ namespace sudoku1
             {
                 score = swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
             }
-            else if(columnNumber == swapcolumnNumber)
+            else if (columnNumber == swapcolumnNumber)
             {
                 score = swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset);
             }
@@ -379,7 +376,7 @@ namespace sudoku1
             else
             {
                 random = r.Next(best1.Count);
-            }                
+            }
 
             int temp = sudoku[best1[random]];
             sudoku[best1[random]] = sudoku[best2[random]];
@@ -405,26 +402,23 @@ namespace sudoku1
         public void updateScore(int index1, int index2)
         {
             didScoreChange();
-            
+
             int row1 = index1 / 9;
             int row2 = index2 / 9;
 
             int column1 = index1 % 9;
             int column2 = index2 % 9;
+            bool sameRow = row1 == row2;
+            bool sameColumn = column1 == column2;
 
-            rowScores[row1] = 0;
-            rowScores[row2] = 0;
-            columnScores[column1] = 0;
-            columnScores[column2] = 0;
-
-            Array.Clear(rows, row1 * 9, 9);
-            Array.Clear(rows, row2 * 9, 9);
-
-            Array.Clear(columns, column1 * 9, 9);
-            Array.Clear(columns, column2 * 9, 9);
-
-            if(row1 != row2)
+            if (!sameRow)
             {
+                rowScores[row1] = 0;
+                rowScores[row2] = 0;
+
+                Array.Clear(rows, row1 * 9, 9);
+                Array.Clear(rows, row2 * 9, 9);
+
                 int startRow = index1 - column1;
                 rows[row1, sudoku[startRow] - 1]++;
                 startRow++;
@@ -434,10 +428,16 @@ namespace sudoku1
                     startRow++;
                 }
             }
-
-            if (column1 != column2)
+        
+            if (!sameColumn)
             {
-                int startColumn = column2;
+                columnScores[column1] = 0;
+                columnScores[column2] = 0;
+
+                Array.Clear(columns, column1 * 9, 9);
+                Array.Clear(columns, column2 * 9, 9);
+
+                int startColumn = column1;
                 while (startColumn < 81)
                 {
                     columns[column1, sudoku[startColumn] - 1]++;
@@ -445,7 +445,7 @@ namespace sudoku1
                 }
             }
 
-            if(row1 != row2)
+            if (!sameRow)
             {
                 int startRow = index2 - column2;
                 rows[row2, sudoku[startRow] - 1]++;
@@ -456,8 +456,8 @@ namespace sudoku1
                     startRow++;
                 }
             }
-            
-            if(column1 != column2)
+
+            if (!sameColumn)
             {
                 int startColumn = column2;
                 while (startColumn < 81)
@@ -469,7 +469,7 @@ namespace sudoku1
 
             for (int i = 0; i < 9; i++)
             {
-                if (row1 != row2)
+                if (!sameRow)
                 {
                     if (rows[row1, i] == 0)
                         rowScores[row1]++;
@@ -478,7 +478,7 @@ namespace sudoku1
                         rowScores[row2]++;
                 }
 
-                if (column1 != column2)
+                if (!sameColumn)
                 {
                     if (columns[column1, i] == 0)
                         columnScores[column1]++;
@@ -524,7 +524,7 @@ namespace sudoku1
             }
         }
 
-        public void randomWalk()
+        public void randomWalk(int number)
         {
             int random1row;
             int random1column;
@@ -536,7 +536,7 @@ namespace sudoku1
             int index2;
 
             int i = 0;
-            while(i < 20)
+            while (i < number)
             {
                 getRandomBlock();
 
