@@ -51,10 +51,19 @@ namespace sudoku1
         {
             Console.Title = "SudokuSolver 9000";
 
-            // make grid with input
-            Console.WriteLine("Welcome to SudokuSolver 9000");
-            Console.WriteLine("Please enter your sudoku in this format:");
-            Console.Write("1 0 0 0 0 0 0 0 0\n0 2 0 0 0 0 0 0 0\n0 0 3 0 0 0 0 0 0\n0 0 0 4 7 9 0 0 0\n0 0 0 2 5 8 0 0 0\n0 0 0 1 3 6 0 0 0\n0 0 0 0 0 0 7 0 0\n0 0 0 0 0 0 0 8 0\n0 0 0 0 0 0 0 0 9\n\n");
+            Console.WriteLine(
+@"Welcome to SudokuSolver 9000
+Please enter your sudoku in this format:
+1 0 0 0 0 0 0 0 0
+0 2 0 0 0 0 0 0 0
+0 0 3 0 0 0 0 0 0
+0 0 0 4 7 9 0 0 0
+0 0 0 2 5 8 0 0 0
+0 0 0 1 3 6 0 0 0
+0 0 0 0 0 0 7 0 0
+0 0 0 0 0 0 0 8 0
+0 0 0 0 0 0 0 0 9
+");
 
             while (true)
             {
@@ -86,7 +95,6 @@ namespace sudoku1
                     if (notCorrectFormat)
                     {
                         Console.WriteLine("Please enter numbers from 0 to 9, where 0 represents a empty space\n");
-                        //Console.WriteLine("");
                     }
                     else
                     {
