@@ -183,7 +183,7 @@ Please enter your sudoku in this format:
                 }
             }
 
-            for (int i = 0; i < 50000000; i++) // give up; no solution
+            for (int i = 0; i < 123456789; i++) // give up; no solution
             {
                 if (i % 1000000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);
                 getRandomBlock();
@@ -286,10 +286,11 @@ Please enter your sudoku in this format:
                         Exit();
                     }
 
+                    // try to add sudoku, else duplicate counter +1
                     if(!localMax.Add(string.Join("", sudoku)))
                         localMaxDuplicate++;    // plateaus can be seen as localMaxDuplicate
 
-                    // else randomwalk
+                    // randomwalk
                     if (localMaxDuplicate % 250 == 0)
                         randomWalk(20);
                     else if (localMaxDuplicate % 10 == 0)
