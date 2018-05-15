@@ -11,3 +11,6 @@ D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.csprojResol
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.csproj.CoreCompileInputs.cache
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.exe
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.pdb
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\bin\Debug\sudoku1.exe.config
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.exe
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\obj\Debug\sudoku1.pdb
