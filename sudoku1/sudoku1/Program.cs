@@ -9,6 +9,7 @@ namespace sudoku1
     {
         static void Main(string[] args)
         {
+            Console.Title = "SudokuSolver 9000";
             Sudoku sudoku = new Sudoku();
         }
     }
@@ -30,13 +31,11 @@ namespace sudoku1
         int[] rowScores = new int[9];
         int[] columnScores = new int[9];
 
-        int[] lastRowScores = new int[9];
-        int[] lastColumnScores = new int[9];
-
-        int counter = 0;
         int localMaxDuplicate = 0;
 
         int randomBlock;
+
+        int bestScore;
 
         bool notCorrectFormat;
 
@@ -49,8 +48,6 @@ namespace sudoku1
 
         public Sudoku()
         {
-            Console.Title = "SudokuSolver 9000";
-
             Console.WriteLine(
 @"Welcome to SudokuSolver 9000
 Please enter your sudoku in this format:
@@ -102,8 +99,8 @@ Please enter your sudoku in this format:
                     }
                 }
             }
-
-            Console.WriteLine("\nSolving sudoku...\n");
+            Console.Clear();
+            Console.WriteLine("Solving sudoku...\n");
             stopwatch.Start();
 
             for (int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
@@ -183,6 +180,8 @@ Please enter your sudoku in this format:
                 }
             }
 
+            numbers.Clear(); // to be able to reuse numbers
+
             for (int i = 0; i < 123456789; i++) // give up; no solution
             {
                 if (i % 1000000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);
@@ -193,7 +192,7 @@ Please enter your sudoku in this format:
                 bestSwap1.Clear();
                 bestSwap2.Clear();
 
-                int bestScore = 0;
+                bestScore = 0;
 
                 int columnNumber = 0;
                 int rowNumber = 0;
@@ -259,12 +258,17 @@ Please enter your sudoku in this format:
                     rowNumber++;
                 }
 
+                // if a score is found with a better score than the original, thn swap
                 if (bestSwap1.Count > 0)
-                    swap(bestScore);
-                else counter++;
+                    swap();
+                else if(!numbers.Contains(randomBlock))
+                    numbers.Add(randomBlock);
 
-                if (counter == 25)
+                // if the score doenst change after swapping for 30 times in a row
+                // then check if you have find the solution, otherwise randomwalk
+                if (numbers.Count == 9)  
                 {
+                    // calculate the score
                     int score = 0;
                     foreach (int row in rowScores)
                     {
@@ -277,6 +281,7 @@ Please enter your sudoku in this format:
                 
                     if (score == 0)    // check if you got the global max
                     {
+                        //Console.Clear();                                              TODO: UNCOMMENT WHEN SPEEDTESTING IS DONE
                         Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
                         printSudoku(sudoku);
                         Console.WriteLine("duplicates = " + localMaxDuplicate);
@@ -290,17 +295,17 @@ Please enter your sudoku in this format:
                     if(!localMax.Add(string.Join("", sudoku)))
                         localMaxDuplicate++;    // plateaus can be seen as localMaxDuplicate
 
-                    // randomwalk
-                    if (localMaxDuplicate % 250 == 0)
-                        randomWalk(20);
-                    else if (localMaxDuplicate % 10 == 0)
-                        randomWalk(12);
+                    // randomwalk, walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
+                    if (localMaxDuplicate % 100 == 0)
+                        randomWalk(6);
                     else
-                        randomWalk(5);
-                    counter = 0;
+                        randomWalk(3);
+                    numbers.Clear();
                 }
             }
 
+            // no solution found within a time limit
+            //Console.Clear();                                      TODO: UNCOMMENT WHEN SPEED TESTING IS DONE
             Console.WriteLine("I could not find the solution :(");
             Console.WriteLine("duplicates = " + localMaxDuplicate);
             Console.WriteLine("uniques = " + localMax.Count());
@@ -328,18 +333,25 @@ Please enter your sudoku in this format:
 
                 Console.WriteLine(output);
             }
-            
         }
 
         public void Exit()
         {
-
-            Console.WriteLine("\nPress ESC to exit");
+            Console.WriteLine("\nPress F5 to solve a new sudoku or press Esc to exit");
+            ConsoleKeyInfo input;
+            
             while (true)
             {
-                if (Console.ReadKey(true).Key == ConsoleKey.Escape)
+                input = Console.ReadKey(true);
+                if (input.Key == ConsoleKey.Escape)
                     Environment.Exit(0);
+                else if (input.Key == ConsoleKey.F5)
+                {
+                    Console.Clear();
+                    Sudoku s = new Sudoku();
+                }
             }
+            
         }
 
         public int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber)
@@ -364,79 +376,73 @@ Please enter your sudoku in this format:
             return score;
         }
 
-        public int swapScore(int[,] first, int number1, int number2)
+        public int swapScore(int[,] matrix, int number1, int number2)
         {
             int score = 0;
             int a = sudoku[swapIndex] - 1;
             int b = sudoku[index] - 1;
-            if (first[number1, a] == 0)
+            if (matrix[number1, a] == 0) // if the number doesn't exist in the column/row where he is going => score++
             {
                 score++;
             }
-            if (first[number2, a] == 1)
+            if (matrix[number2, a] == 1) // if the number that leaves only existed ones in the row/column, so non are left => score--
             {
                 score--;
             }
-            if (first[number2, b] == 0)
+            if (matrix[number2, b] == 0) // if the number doesn't exist in the column/row where he is going => score++
             {
                 score++;
             }
-            if (first[number1, b] == 1)
+            if (matrix[number1, b] == 1) // if the number that leaves only existed ones in the row/column, so non are left => score--
             {
                 score--;
             }
-            return score;
+            return score; // a higher score is better
         }
 
-        public void swap(int bestScore)
+        public void swapNumbers(ref int number1, ref int number2)
+        {
+            int temp = number1;
+            number1 = number2;
+            number2 = temp;
+        }
+
+        public void swap()
         {
             int random;
 
-            if (bestScore == 0)
+            if (bestScore == 0) // if no swap gives the a better score than the original sudoku, then it has a change that it won't swap
             {
+                if (!numbers.Contains(randomBlock))
+                    numbers.Add(randomBlock);   // score didn't change so counter goes up
+
                 random = r.Next(bestSwap1.Count + 1);
                 if (random == bestSwap1.Count)
                     return;
             }
             else
             {
+                numbers.Clear(); // score did change, so counter resets
                 random = r.Next(bestSwap1.Count);
             }
 
-            int temp = sudoku[bestSwap1[random]];
-            sudoku[bestSwap1[random]] = sudoku[bestSwap2[random]];
-            sudoku[bestSwap2[random]] = temp;
+            // swap two numbers
+            swapNumbers(ref sudoku[bestSwap1[random]], ref sudoku[bestSwap2[random]]);
 
             updateScore(bestSwap1[random], bestSwap2[random]);
         }
 
-        public void didScoreChange()
-        {
-            if (Enumerable.SequenceEqual(rowScores, lastRowScores) && Enumerable.SequenceEqual(columnScores, lastColumnScores))
-            {
-                counter++;
-            }
-            else
-            {
-                rowScores.CopyTo(lastRowScores, 0);
-                columnScores.CopyTo(lastColumnScores, 0);
-                counter = 0;
-            }
-        }
-
         public void updateScore(int index1, int index2)
         {
-            didScoreChange();
-
-            int row1 = index1 / 9;
+            int row1 = index1 / 9;  //
             int row2 = index2 / 9;
 
             int column1 = index1 % 9;
             int column2 = index2 % 9;
-            bool sameRow = row1 == row2;
-            bool sameColumn = column1 == column2;
+            bool notSameRow = row1 != row2;
+            bool notSameColumn = column1 != column2;
 
-            if (!sameRow)
+            if (notSameRow)
             {
                 rowScores[row1] = 0;
                 rowScores[row2] = 0;
@@ -452,9 +458,18 @@ Please enter your sudoku in this format:
                     rows[row1, sudoku[startRow] - 1]++;
                     startRow++;
                 }
+
+                startRow = index2 - column2;
+                rows[row2, sudoku[startRow] - 1]++;
+                startRow++;
+                while (startRow % 9 != 0)
+                {
+                    rows[row2, sudoku[startRow] - 1]++;
+                    startRow++;
+                }
             }
         
-            if (!sameColumn)
+            if (notSameColumn)
             {
                 columnScores[column1] = 0;
                 columnScores[column2] = 0;
@@ -468,23 +483,8 @@ Please enter your sudoku in this format:
                     columns[column1, sudoku[startColumn] - 1]++;
                     startColumn += 9;
                 }
-            }
 
-            if (!sameRow)
-            {
-                int startRow = index2 - column2;
-                rows[row2, sudoku[startRow] - 1]++;
-                startRow++;
-                while (startRow % 9 != 0)
-                {
-                    rows[row2, sudoku[startRow] - 1]++;
-                    startRow++;
-                }
-            }
-
-            if (!sameColumn)
-            {
-                int startColumn = column2;
+                startColumn = column2;
                 while (startColumn < 81)
                 {
                     columns[column2, sudoku[startColumn] - 1]++;
@@ -494,7 +494,7 @@ Please enter your sudoku in this format:
 
             for (int i = 0; i < 9; i++)
             {
-                if (!sameRow)
+                if (notSameRow)
                 {
                     if (rows[row1, i] == 0)
                         rowScores[row1]++;
@@ -503,7 +503,7 @@ Please enter your sudoku in this format:
                         rowScores[row2]++;
                 }
 
-                if (!sameColumn)
+                if (notSameColumn)
                 {
                     if (columns[column1, i] == 0)
                         columnScores[column1]++;
@@ -516,8 +516,8 @@ Please enter your sudoku in this format:
 
         public void getRandomBlock()
         {
-            randomBlock = r.Next(9);  // get a random number
-            switch (randomBlock) // get the correct index
+            randomBlock = r.Next(9);    // get a random number
+            switch (randomBlock)        // get the correct index
             {
                 case 0:
                     blockIndex = 0;
@@ -575,13 +575,11 @@ Please enter your sudoku in this format:
                     index2 = blockIndex + random2row * 9 + random2column;
                     if (index1 != index2 && !start[index1] && !start[index2])
                     {
-                        break;
+                        break;  // if the the indeces are not the same and both are not fixed, then stop generating random indeces
                     }
                 }
 
-                int temp = sudoku[index1];
-                sudoku[index1] = sudoku[index2];
-                sudoku[index2] = temp;
+                swapNumbers(ref sudoku[index1], ref sudoku[index2]);
                 i++;
 
                 updateScore(index1, index2);
