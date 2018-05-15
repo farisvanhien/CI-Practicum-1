@@ -18,6 +18,8 @@ namespace sudoku1
         Random r = new Random();
         Stopwatch stopwatch = new Stopwatch();
 
+        int[] sudoku = new int[81];             // the sudoku grid 
+        bool[] fixedNumbers = new bool[81];     // is true if the number is fixed
 
         int index;
         int blockIndex;
@@ -46,12 +48,8 @@ namespace sudoku1
 
         public Sudoku()
         {
-<<<<<<< HEAD
-=======
             #region Input
-            Console.Title = "SudokuSolver 9000";
 
->>>>>>> fd2e24a86b4906e6f0117d7403bde21b5abdb9ca
             Console.WriteLine(
 @"Welcome to SudokuSolver 9000
 Please enter your sudoku in this format:
@@ -83,9 +81,10 @@ Please enter your sudoku in this format:
                             sudoku[rows * 9 + cols] = int.Parse(input[cols]);
                             if (sudoku[rows * 9 + cols] != 0)
                             {
+                                fixedNumbers[rows * 9 + cols] = true;
                             }
+                            else fixedNumbers[rows * 9 + cols] = false;
                         }
-
                     }
                     if (notCorrectFormat)
                         throw new Exception();
@@ -103,8 +102,14 @@ Please enter your sudoku in this format:
                     }
                 }
             }
+
             Console.Clear();
             Console.WriteLine("Solving sudoku...\n");
+
+            #endregion
+
+            #region Initialize
+
             stopwatch.Start();
 
             for (int horizontalBlock = 0; horizontalBlock < 3; horizontalBlock++)
@@ -132,6 +137,7 @@ Please enter your sudoku in this format:
                         {
                             index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
 
+                            if (!fixedNumbers[index])  // free space
                             {
                                 int random = r.Next(9) + 1;  // get a random number
 
@@ -182,9 +188,11 @@ Please enter your sudoku in this format:
                         columnScores[i]++;
                 }
             }
+            #endregion
 
             numbers.Clear(); // to be able to reuse numbers
 
+            #region ILS
             for (int i = 0; i < 123456789; i++) // give up; no solution
             {
                 if (i % 1000000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);
@@ -212,6 +220,7 @@ Please enter your sudoku in this format:
 
                         index = blockIndex + rowNumber * 9 + columnNumber;
 
+                        if (fixedNumbers[index])
                         {
                             columnNumber++;
                             continue;
@@ -226,6 +235,7 @@ Please enter your sudoku in this format:
                             {
                                 swapIndex = blockIndex + swaprowNumber * 9 + swapcolumnNumber;
 
+                                if (fixedNumbers[swapIndex])
                                 {
                                     swapcolumnNumber++;
                                     continue;
@@ -312,6 +322,7 @@ Please enter your sudoku in this format:
             Console.WriteLine("uniques = " + localMax.Count());
             Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);
             Exit();
+            #endregion
         }
 
 
@@ -328,20 +339,17 @@ Please enter your sudoku in this format:
                         output += "|";
                     else output += " ";
                     output += Sudoku[k * 9 + l];
-
                 }
                 if (k % 3 == 0 && k != 0)
                     Console.WriteLine(" -----+-----+-----");
-
                 Console.WriteLine(output);
             }
         }
 
         public void Exit()
         {
-            Console.WriteLine("\nPress F5 to solve a new sudoku or press Esc to exit");
+            Console.WriteLine("\nPress F5 to solve a new sudoku\nPress Esc to exit");
             ConsoleKeyInfo input;
-            
             while (true)
             {
                 input = Console.ReadKey(true);
@@ -353,7 +361,6 @@ Please enter your sudoku in this format:
                     Sudoku s = new Sudoku();
                 }
             }
-            
         }
 
         public int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber)
@@ -575,6 +582,7 @@ Please enter your sudoku in this format:
                     random2column = r.Next(3);
                     index1 = blockIndex + random1row * 9 + random1column;
                     index2 = blockIndex + random2row * 9 + random2column;
+                    if (index1 != index2 && !fixedNumbers[index1] && !fixedNumbers[index2])
                     {
                         break;  // if the the indeces are not the same and both are not fixed, then stop generating random indeces
                     }
