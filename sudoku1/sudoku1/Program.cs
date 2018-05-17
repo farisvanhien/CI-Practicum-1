@@ -376,9 +376,9 @@ Please enter your sudoku in this format:
                         Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
                         printSudoku(sudoku);
                         Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("uniques = " + localMax.Count());//TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);//TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("states = " + i);//TODO: REMOVE WHEN DONE TESTING
+                        Console.WriteLine("uniques = " + localMax.Count()); //TODO: REMOVE WHEN DONE TESTING
+                        Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);  //TODO: REMOVE WHEN DONE TESTING
+                        Console.WriteLine("states = " + i); //TODO: REMOVE WHEN DONE TESTING
                         Exit();
                     }
 
@@ -398,9 +398,9 @@ Please enter your sudoku in this format:
             // no solution found within a time limit
             //Console.Clear();                                      TODO: UNCOMMENT WHEN SPEED TESTING IS DONE
             Console.WriteLine("I could not find the solution in {0} seconds :(", stopwatch.ElapsedMilliseconds / 1000f);
-            Console.WriteLine("duplicates = " + localMaxDuplicate);//TODO: REMOVE WHEN DONE TESTING
-            Console.WriteLine("uniques = " + localMax.Count());//TODO: REMOVE WHEN DONE TESTING
-            Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);//TODO: REMOVE WHEN DONE TESTING
+            Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
+            Console.WriteLine("uniques = " + localMax.Count()); //TODO: REMOVE WHEN DONE TESTING
+            Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);  //TODO: REMOVE WHEN DONE TESTING
             Exit();
             #endregion
         }
@@ -476,15 +476,15 @@ Please enter your sudoku in this format:
             {
                 score--;
             }
-            if (matrix[number2][sudoku[index] - 1] == 0) // if the number doesn't exist in the column/row where he is going => score++
+            if (matrix[number2][sudoku[index] - 1] == 0)    // if the number doesn't exist in the column/row where he is going => score++
             {
                 score++;
             }
-            if (matrix[number1][sudoku[index] - 1] == 1) // if the number that leaves only existed ones in the row/column, so non are left => score--
+            if (matrix[number1][sudoku[index] - 1] == 1)    // if the number that leaves only existed ones in the row/column, so non are left => score--
             {
                 score--;
             }
-            return score; // a higher score is better
+            return score;   // a higher score is better
         }
 
         public void swap()
@@ -502,7 +502,7 @@ Please enter your sudoku in this format:
             }
             else
             {
-                numbers.Clear(); // score did change, so counter resets
+                numbers.Clear();    // score did change, so counter resets
                 random = r.Next(bestSwap1.Count);
             }
 
@@ -518,7 +518,7 @@ Please enter your sudoku in this format:
             number2 = temp;
         }
 
-        public void updateScore(int index1, int index2) // similar to when we first calculate the scores
+        public void updateScore(int index1, int index2) // this method is similar to when we first calculate the scores
         {
             int row1 = index1 / 9;  // get the start of the row
             int row2 = index2 / 9;
