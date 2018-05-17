@@ -39,7 +39,7 @@ namespace sudoku1
 
         bool notCorrectNumbers;
 
-        List<int> numbers = new List<int>(9);
+        List<int> numbers = new List<int>(9);   // a list with multiple uses
 
         List<int> bestSwap1 = new List<int>();
         List<int> bestSwap2 = new List<int>();
@@ -626,7 +626,7 @@ Please enter your sudoku in this format:
             for(int i = 0; i < number; i++)
             {
                 getRandomBlock();
-                int j = 0;
+                int j;
                 for (j = 0; j < 50; j++)    // give a max to the total tries, because if a block has 8 or 9 fixed numbers then no swap is possible
                 {
                     random1row = r.Next(3);
