@@ -273,7 +273,7 @@ Please enter your sudoku in this format:
             #endregion
 
             #region ILS
-            for (int i = 0; i < 123456789; i++) // iteration criterion; takes about 2.5 minutes at 2.9 GHz in release
+            for (int i = 0; i < 123456789; i++) // iteration criterion; takes about 2.5 minutes at 2.9 GHz in Release
             {
                 if (i % 1000000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);   // TODO: REMOVE WHEN DONE
 
@@ -466,7 +466,8 @@ Please enter your sudoku in this format:
         public int swapScore(int[][] matrix, int number1, int number2)
         {
             int score = 0;
-
+            // number1 = the first row or column
+            // number2 = the second row or column
             if (matrix[number1][sudoku[swapIndex] - 1] == 0) // if the number doesn't exist in the column/row where he is going => score++
             {
                 score++;
@@ -490,14 +491,14 @@ Please enter your sudoku in this format:
         {
             int random;
 
-            if (bestScore == 0) // if no swap gives the a better score than the original sudoku, then it has a change that it won't swap
+            if (bestScore == 0) // if no swap gives the a better score than the original sudoku, then it has a chance that it won't swap
             {
                 if (!numbers.Contains(randomBlock))
-                    numbers.Add(randomBlock);   // score didn't change so counter goes up
+                    numbers.Add(randomBlock);   // bestScore == 0, so the score doesn't change => add the block to the list to determine when to randomwalk
 
                 random = r.Next(bestSwap1.Count + 1);
-                if (random == bestSwap1.Count)
-                    return;
+                if (random == bestSwap1.Count)  
+                    return; // don't swap
             }
             else
             {
@@ -530,6 +531,7 @@ Please enter your sudoku in this format:
 
             if (notSameRow)
             {
+                // reset rowScores
                 rowScores[row1] = 0;
                 rowScores[row2] = 0;
 
@@ -561,6 +563,7 @@ Please enter your sudoku in this format:
         
             if (notSameColumn)
             {
+                //reset columnscores
                 columnScores[column1] = 0;
                 columnScores[column2] = 0;
 
@@ -617,14 +620,14 @@ Please enter your sudoku in this format:
             int random2row;
             int random2column;
 
-            int index1;
-            int index2;
+            int index1 = 0;
+            int index2 = 1;
 
             for(int i = 0; i < number; i++)
             {
                 getRandomBlock();
-
-                while (true)
+                int j = 0;
+                for (j = 0; j < 50; j++)    // give a max to the total tries, because if a block has 8 or 9 fixed numbers then no swap is possible
                 {
                     random1row = r.Next(3);
                     random1column = r.Next(3);
@@ -637,10 +640,13 @@ Please enter your sudoku in this format:
                         break;  // if the the indeces are not the same and both are not fixed, then stop generating random indeces
                     }
                 }
+                if(j < 50)
+                {
+                    swapNumbers(ref sudoku[index1], ref sudoku[index2]);
 
-                swapNumbers(ref sudoku[index1], ref sudoku[index2]);
-
-                updateScore(index1, index2);
+                    updateScore(index1, index2);
+                }
+                
             }
         }
 
