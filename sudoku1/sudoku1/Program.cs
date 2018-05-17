@@ -32,11 +32,10 @@ namespace sudoku1
         int[] rowScores = new int[9];
         int[] columnScores = new int[9];
 
-        int localMaxDuplicate = 0;
-
         int randomBlock;
-
         int bestScore;
+
+        int localMaxDuplicate = 0;
 
         bool notCorrectNumbers;
 
@@ -621,8 +620,7 @@ Please enter your sudoku in this format:
             int index1;
             int index2;
 
-            int i = 0;
-            while (i < number)
+            for(int i = 0; i < number; i++)
             {
                 getRandomBlock();
 
@@ -643,7 +641,6 @@ Please enter your sudoku in this format:
                 swapNumbers(ref sudoku[index1], ref sudoku[index2]);
 
                 updateScore(index1, index2);
-                i++;
             }
         }
 
