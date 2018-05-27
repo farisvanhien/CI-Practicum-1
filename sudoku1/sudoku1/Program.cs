@@ -39,6 +39,12 @@ namespace sudoku1
 
         bool notCorrectNumbers;
 
+
+        int GETPLATEAUS = 0;
+        int totalPlateaus = 0;
+
+
+
         List<int> numbers = new List<int>(9);   // a list with multiple uses
 
         List<int> bestSwap1 = new List<int>();
@@ -354,43 +360,62 @@ Please enter your sudoku in this format:
                 else if(!numbers.Contains(randomBlock)) 
                     numbers.Add(randomBlock);   // if you don't swap, then add the block to a list
 
+                if(GETPLATEAUS > 0)
+                {
+                    if (localMax.Add(string.Join("", sudoku)))
+                        totalPlateaus++;
+                }
                 // if all blocks have been checked and the score didn't change
                 // then check if you have the global max, else randomwalk
                 if (numbers.Count == 9)  
                 {
-                    // calculate the score
-                    int score = 0;
-                    foreach (int row in rowScores)
+                    if(GETPLATEAUS == 0)
                     {
-                        score += row;
+                        // try to add sudoku, else duplicate counter +1
+                        if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
+                            localMaxDuplicate++;
                     }
-                    foreach (int column in columnScores)
-                    {
-                        score += column;
-                    }
-                
-                    if (score == 0)    // check if you got the global max
-                    {
-                        //Console.Clear();                                              TODO: UNCOMMENT WHEN SPEEDTESTING IS DONE
-                        Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
-                        printSudoku(sudoku);
-                        Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("uniques = " + localMax.Count()); //TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);  //TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("states = " + i); //TODO: REMOVE WHEN DONE TESTING
-                        Exit();
-                    }
-
-                    // try to add sudoku, else duplicate counter +1
-                    if(!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
-                        localMaxDuplicate++;    
-
-                    // randomwalk, walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
-                    if (localMaxDuplicate % 100 == 0)
-                        randomWalk(6);
-                    else
-                        randomWalk(3);
+                    
+                    GETPLATEAUS++;
                     numbers.Clear();
+                    if (GETPLATEAUS > 1)
+                    {
+                        GETPLATEAUS = 0;
+
+                        // calculate the score
+                        int score = 0;
+                        foreach (int row in rowScores)
+                        {
+                            score += row;
+                        }
+                        foreach (int column in columnScores)
+                        {
+                            score += column;
+                        }
+
+                        if (score == 0)    // check if you got the global max
+                        {
+                            //Console.Clear();                                              TODO: UNCOMMENT WHEN SPEEDTESTING IS DONE
+                            Console.WriteLine("I have found the solution in {0} seconds!", stopwatch.ElapsedMilliseconds / 1000f);
+                            printSudoku(sudoku);
+                            Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
+                            Console.WriteLine("uniques = " + (localMax.Count() - totalPlateaus)); //TODO: REMOVE WHEN DONE TESTING
+                            Console.WriteLine("ratio = " + localMaxDuplicate / (float)(localMax.Count - totalPlateaus));  //TODO: REMOVE WHEN DONE TESTING
+                            Console.WriteLine("states = " + i); //TODO: REMOVE WHEN DONE TESTING
+                            Exit();
+                        }
+
+                        // try to add sudoku, else duplicate counter +1
+                        //if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
+                         //   localMaxDuplicate++;
+
+                        // randomwalk, walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
+                        if (localMaxDuplicate % 100 == 0)
+                            randomWalk(8);
+                            else
+                        randomWalk(4);
+                        numbers.Clear();
+                    }
                 }
             }
 
