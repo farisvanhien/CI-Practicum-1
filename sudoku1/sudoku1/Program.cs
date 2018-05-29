@@ -15,6 +15,9 @@ namespace sudoku1
     }
     class Sudoku
     {
+        int localMaxScore;
+        bool done;
+
         #region Fields
         Random r = new Random();
         Stopwatch stopwatch = new Stopwatch();
@@ -145,7 +148,7 @@ Please enter your sudoku in this format:
             }
 
             //check rows
-            for(int row = 0; row < 9; row++)
+            for (int row = 0; row < 9; row++)
             {
                 numbers.Clear();
                 for (int column = 0; column < 9; column++)
@@ -357,31 +360,56 @@ Please enter your sudoku in this format:
                 // if a score is found with a better score than the original, then swap
                 if (bestSwap1.Count > 0)
                     swap();
-                else if(!numbers.Contains(randomBlock)) 
+                else if (!numbers.Contains(randomBlock))
                     numbers.Add(randomBlock);   // if you don't swap, then add the block to a list
 
-                if(GETPLATEAUS > 0)
+                if (GETPLATEAUS > 0)
                 {
-                    if (localMax.Add(string.Join("", sudoku)))
-                        totalPlateaus++;
+                    int score = 0;
+                    foreach (int row in rowScores)
+                    {
+                        score += row;
+                    }
+                    foreach (int column in columnScores)
+                    {
+                        score += column;
+                    }
+
+                    if (localMaxScore == score)
+                    {
+                        if (localMax.Add(string.Join("", sudoku)))
+                            totalPlateaus++;
+                    }
+                    else done = true;
+                    
                 }
                 // if all blocks have been checked and the score didn't change
                 // then check if you have the global max, else randomwalk
-                if (numbers.Count == 9)  
+                if (numbers.Count == 9 || done)
                 {
-                    if(GETPLATEAUS == 0)
+                    if (GETPLATEAUS == 0)
                     {
                         // try to add sudoku, else duplicate counter +1
                         if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
                             localMaxDuplicate++;
+
+                        localMaxScore = 0;
+                        foreach (int row in rowScores)
+                        {
+                            localMaxScore += row;
+                        }
+                        foreach (int column in columnScores)
+                        {
+                            localMaxScore += column;
+                        }
                     }
-                    
+
                     GETPLATEAUS++;
                     numbers.Clear();
-                    if (GETPLATEAUS > 1)
+                    if (GETPLATEAUS > 7 || done)
                     {
                         GETPLATEAUS = 0;
-
+                        done = false;
                         // calculate the score
                         int score = 0;
                         foreach (int row in rowScores)
@@ -407,14 +435,15 @@ Please enter your sudoku in this format:
 
                         // try to add sudoku, else duplicate counter +1
                         //if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
-                         //   localMaxDuplicate++;
+                        //    localMaxDuplicate++;
 
                         // randomwalk, walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
-                        if (localMaxDuplicate % 100 == 0)
-                            randomWalk(8);
-                            else
-                        randomWalk(4);
+                        //if (localMaxDuplicate % 100 == 0)
+                        //    randomWalk(8);
+                        //else
+                            randomWalk(7);
                         numbers.Clear();
+
                     }
                 }
             }
@@ -427,6 +456,7 @@ Please enter your sudoku in this format:
             Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);  //TODO: REMOVE WHEN DONE TESTING
             Exit();
             #endregion
+            
         }
 
         #region Methods
