@@ -437,11 +437,20 @@ Please enter your sudoku in this format:
                         //if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
                         //    localMaxDuplicate++;
 
-                        // randomwalk, walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
-                        //if (localMaxDuplicate % 100 == 0)
-                        //    randomWalk(8);
-                        //else
+                        
+                        
+                        if (i < 200000)         // smaller than 200.000
                             randomWalk(7);
+                        else if (i < 500000)    // between 200.000 and 500.000
+                            randomWalk(6);
+                        else if (i < 4000000)   // between 500.000 and 4.000.000
+                            randomWalk(5);
+                        else if (localMaxDuplicate % 1000 == 0) // walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
+                            randomWalk(8);
+                        else
+                            randomWalk(4);      // higher than 4.000.000
+                        
+                        
                         numbers.Clear();
 
                     }
