@@ -445,30 +445,28 @@ Please enter your sudoku in this format:
                         Exit();
                     }
 
-                        // try to add sudoku, else duplicate counter +1
-                        //if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
-                        //    localMaxDuplicate++;
+                    // try to add sudoku, else duplicate counter +1
+                    //if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
+                    //    localMaxDuplicate++;
 
-
+                    if (i > 10_000_000)
                         randomWalk(4);
-                    //if (i < 250_000)
-                    //    randomWalk(7);
-                    //else if (i < 1_000_000)
-                    //    randomWalk(6);
-                    //else if (i < 10_000_000)
-                    //    randomWalk(5);
-                    ////else if (counter == 3) // walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
-                    ////{
-                    ////    randomWalk(6);
-                    ////    counter = 0;
-                    ////} 
-                    //else
+                    else if (i > 1_000_000)
+                        randomWalk(5);
+                    else if (i > 250_000)
+                        randomWalk(6);
+                    //else if (counter == 3) // walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
                     //{
-                    ////if (sudoku.SequenceEqual(lastLocalMax))
-                    ////    counter++;
-                    ////Array.Copy(sudoku, lastLocalMax, 81);
-                    //    randomWalk(4);
-                    //}
+                    //    randomWalk(6);
+                    //    counter = 0;
+                    //} 
+                    else
+                    {
+                        //if (sudoku.SequenceEqual(lastLocalMax))
+                        //    counter++;
+                        //Array.Copy(sudoku, lastLocalMax, 81);
+                        randomWalk(7);
+                    }
                     Array.Clear(didScoreChange, 0, 9);
                     counter = 0;
                 }
@@ -524,18 +522,15 @@ Please enter your sudoku in this format:
 
         int getScore(int rowNumber, int columnNumber, int swaprowNumber, int swapcolumnNumber)
         {
-            int score;
-            int columnsOffset = randomBlock % 3 * 3;
-            int rowsOffset = randomBlock / 3 * 3;
+            int columnsOffset = columnOffsetTable();// instead of randomBlock % 3 * 3 for speed
+            int rowsOffset = rowOffsetTable();      // instead of randomBlock / 3 * 3 for speed
 
             if (rowNumber == swaprowNumber)
-                score = swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
+                return swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
             else if (columnNumber == swapcolumnNumber)
-                score = swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset);
+                return swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset);
             else
-                score = swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset) + swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
-
-            return score;
+                return swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset) + swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -716,7 +711,7 @@ Please enter your sudoku in this format:
             }
         }
 
-        void printSudoku(int[] Sudoku)
+        static void printSudoku(int[] Sudoku)
         {
             Console.WriteLine();
             for (int k = 0; k < 9; k++)
@@ -750,6 +745,48 @@ Please enter your sudoku in this format:
                     Console.Clear();
                     Sudoku s = new Sudoku();
                 }
+            }
+        }
+
+        static int columnOffsetTable()
+        {
+            switch (randomBlock)
+            {
+                case 0:
+                case 3:
+                case 6:
+                    return 0;
+                case 1:
+                case 4:
+                case 7:
+                    return 3;
+                case 2:
+                case 5:
+                case 8:
+                    return 6;
+                default:
+                    return -1;
+            }
+        }
+
+        static int rowOffsetTable()
+        {
+            switch (randomBlock)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    return 0;
+                case 3:
+                case 4:
+                case 5:
+                    return 3;
+                case 6:
+                case 7:
+                case 8:
+                    return 6;
+                default:
+                    return -1;
             }
         }
         #endregion
