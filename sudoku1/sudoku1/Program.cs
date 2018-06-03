@@ -8,7 +8,7 @@ namespace sudoku1
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.Title = "SudokuSolver 9000";
             Sudoku sudoku = new Sudoku();
@@ -558,15 +558,16 @@ Please enter your sudoku in this format:
         {
             int random;
 
-            if (bestScore == 0) // if no swap gives the a better score than the original sudoku, then it has a chance that it won't swap
-            { 
-                if (didScoreChange[randomBlock] == false) // bestScore == 0, so the score doesn't change => add the block to the array to determine when to randomwalk
+            if (bestScore == 0) 
+            {
+                // bestScore == 0, so the score doesn't change => add the block to the array to determine when to randomwalk
+                if (didScoreChange[randomBlock] == false) 
                 {
                     didScoreChange[randomBlock] = true;
                     counter++;
                 }
-                random = r.Next(bestSwap1.Count + 1);
-                if (random == bestSwap1.Count)
+                random = r.Next(bestSwap1.Count + 1); // if no swap gives the a better score than the original sudoku, 
+                if (random == bestSwap1.Count)        // then it has a chance that it won't swap
                     return; // don't swap
             }
             else
@@ -678,31 +679,27 @@ Please enter your sudoku in this format:
         
         void randomWalk(int number)
         {
-            int index1 = 0;
-            int index2 = 0;
-
-            bool swapped;
+            int index1;
+            int index2;
 
             for (int i = 0; i < number; i++)
             {
                 getRandomBlock();
-                swapped = false;
-                for (int j = 0; j < 50; j++)    // give a max to the total tries, because if a block has 8 or 9 fixed numbers then no swap is possible
+                int j = 0;
+                do
                 {
                     index1 = blockIndex + r.Next(3) * 9 + r.Next(3);
                     index2 = blockIndex + r.Next(3) * 9 + r.Next(3);
-                    if (index1 != index2 && !fixedNumbers[index1] && !fixedNumbers[index2])
+                    if (index1 != index2 && !fixedNumbers [index1] && !fixedNumbers [index2])
                     {
-                        swapped = true;
-                        break;  // if the the indeces are not the same and both are not fixed, then stop generating random indeces
+                        // if the the indeces are not the same and both are not fixed, then stop generating random indeces and swap
+                        swapNumbers(ref sudoku [index1], ref sudoku [index2]);
+                        updateScore(index1, index2);
+                        break;
                     }
+                    j++;
                 }
-                if (swapped)
-                {
-                    swapNumbers(ref sudoku[index1], ref sudoku[index2]);
-
-                    updateScore(index1, index2);
-                }
+                while (j < 50);
             }
         }
 
