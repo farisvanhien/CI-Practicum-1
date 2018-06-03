@@ -254,15 +254,14 @@ Please enter your sudoku in this format:
             {
                 int modulus = index % 9;
                 start = index - modulus;
-                rows[number][sudoku[start++] - 1]++;   // if a number exists in a row +1 to the index of that number - 1
-                while (start % 9 != 0)
-                {
-                    rows[number][sudoku[start++] - 1]++;
-                }
+                do
+                    rows [number] [sudoku [start++] - 1]++;    // if a number exists in a row +1 to the index of that number - 1
+                while (start % 9 != 0);
+
                 start = modulus;
                 while (start < 81)
                 {
-                    columns[number][sudoku[start] - 1]++; // if a number exists in a column +1 to the index of that number - 1
+                    columns[number][sudoku[start] - 1]++;   // if a number exists in a column +1 to the index of that number - 1
                     start += 9;
                 }
 
@@ -527,10 +526,10 @@ Please enter your sudoku in this format:
 
             if (rowNumber == swaprowNumber)
                 return swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
-            else if (columnNumber == swapcolumnNumber)
+            if (columnNumber == swapcolumnNumber)
                 return swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset);
-            else
-                return swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset) + swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
+
+            return swapScore(rows, rowNumber + rowsOffset, swaprowNumber + rowsOffset) + swapScore(columns, columnNumber + columnsOffset, swapcolumnNumber + columnsOffset);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -616,18 +615,14 @@ Please enter your sudoku in this format:
                 }
 
                 start = index1 - column1;
-                rows[row1][sudoku[start++] - 1]++;       // first one outside the while loop, otherwise it will never enter the loop
-                while (start % 9 != 0)
-                {
-                    rows[row1][sudoku[start++] - 1]++;   // +1 on the index of the number found -1 and go to the next number (startrow++)
-                }
+                do
+                    rows [row1] [sudoku [start++] - 1]++;   // +1 on the index of the number found -1 and go to the next number (startrow++)
+                while (start % 9 != 0);
 
                 start = index2 - column2;
-                rows[row2][sudoku[start++] - 1]++;       // first one outside the while loop, otherwise it will never enter the loop
-                while (start % 9 != 0)
-                {
-                    rows[row2][sudoku[start++] - 1]++;   // +1 on the index of the number found -1 and go to the next number (startrow++)
-                }
+                do
+                    rows [row2] [sudoku [start++] - 1]++;   // +1 on the index of the number found -1 and go to the next number (startrow++)
+                while (start % 9 != 0);
             }
 
             if (notSameColumn)
@@ -771,23 +766,11 @@ Please enter your sudoku in this format:
 
         static int rowOffsetTable()
         {
-            switch (randomBlock)
-            {
-                case 0:
-                case 1:
-                case 2:
-                    return 0;
-                case 3:
-                case 4:
-                case 5:
-                    return 3;
-                case 6:
-                case 7:
-                case 8:
-                    return 6;
-                default:
-                    return -1;
-            }
+            if (randomBlock < 3)
+                return 0;
+            if (randomBlock > 5)
+                return 6;
+            return 3;
         }
         #endregion
     }
