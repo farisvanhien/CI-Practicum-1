@@ -302,7 +302,7 @@ Please enter your sudoku in this format:
                 {
                     while (columnNumber < 3)
                     {
-                        if (rowNumber == 2 && columnNumber == 2)    // don't need to check swaps if it's the last number in the column
+                        if (rowNumber == 3 && columnNumber == 3)    // don't need to check swaps if it's the last number in the column
                         {
                             columnNumber++;
                             break;
@@ -472,7 +472,7 @@ Please enter your sudoku in this format:
 
         public void getRandomBlock()
         {
-            randomBlock = 8;//= r.Next(9);    // get a random number
+            randomBlock = r.Next(9);    // get a random number
             switch (randomBlock)        // get the correct index
             {
                 case 0:
