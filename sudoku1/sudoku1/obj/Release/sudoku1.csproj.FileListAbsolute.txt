@@ -4,4 +4,4 @@ D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\bin\Release\sudoku1.pdb
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.csproj.CoreCompileInputs.cache
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.exe
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.pdb
-D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.csprojResolveAssemblyReference.cache
+D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.csprojAssemblyReference.cache
