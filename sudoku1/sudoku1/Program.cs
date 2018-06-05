@@ -703,6 +703,36 @@ Please enter your sudoku in this format:
             }
         }
 
+        static int columnOffsetTable()
+        {
+            switch (randomBlock)
+            {
+                case 0:
+                case 3:
+                case 6:
+                    return 0;
+                case 1:
+                case 4:
+                case 7:
+                    return 3;
+                case 2:
+                case 5:
+                case 8:
+                    return 6;
+                default:
+                    return -1;
+            }
+        }
+
+        static int rowOffsetTable()
+        {
+            if (randomBlock < 3)
+                return 0;
+            if (randomBlock > 5)
+                return 6;
+            return 3;
+        }
+
         static void printSudoku(int[] Sudoku)
         {
             Console.WriteLine();
@@ -738,36 +768,6 @@ Please enter your sudoku in this format:
                     Sudoku s = new Sudoku();
                 }
             }
-        }
-
-        static int columnOffsetTable()
-        {
-            switch (randomBlock)
-            {
-                case 0:
-                case 3:
-                case 6:
-                    return 0;
-                case 1:
-                case 4:
-                case 7:
-                    return 3;
-                case 2:
-                case 5:
-                case 8:
-                    return 6;
-                default:
-                    return -1;
-            }
-        }
-
-        static int rowOffsetTable()
-        {
-            if (randomBlock < 3)
-                return 0;
-            if (randomBlock > 5)
-                return 6;
-            return 3;
         }
         #endregion
     }
