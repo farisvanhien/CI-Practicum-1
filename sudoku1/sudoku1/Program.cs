@@ -31,32 +31,33 @@ namespace sudoku1
         static int getAverageCounter = 0;
         static List<int> states = new List<int>(1000);
         static List<long> time = new List<long>(1000);
+        static List<float> ratios = new List<float>(10);
 
         #region Fields
         Random r = new Random(getAverageCounter);
         Stopwatch stopwatch = new Stopwatch();
 
         // the sudoku grid 
-        static int [] sudoku =   {0,0,0,0,0,3,0,1,7,
-                                0,1,5,0,0,9,0,0,8,
-                                0,6,0,0,0,0,0,0,0,
-                                1,0,0,0,0,7,0,0,0,
-                                0,0,9,0,0,0,2,0,0,
-                                0,0,0,5,0,0,0,0,4,
-                                0,0,0,0,0,0,0,2,0,
-                                5,0,0,6,0,0,3,4,0,
-                                3,4,0,2,0,0,0,0,9 };
+        static int [] sudoku =   {0,0,0,0,0,0,0,0,0,
+                                0,0,0,0,0,3,0,8,5,
+                                0,0,1,0,2,0,0,0,0,
+                                0,0,0,5,0,7,0,0,0,
+                                0,0,4,0,0,0,1,0,0,
+                                0,9,0,0,0,0,0,0,0,
+                                5,0,0,0,0,0,0,7,3,
+                                0,0,2,0,1,0,0,0,0,
+                                0,0,0,0,4,0,0,0,9  };
         // is true if the number is fixed
         static bool [] fixedNumbers = {
+                false,false,false,false,false,false,false,false,false,
                 false,false,false,false,false,true,false,true,true,
-                false,true,true,false,false,true,false,false,true,
-                false,true,false,false,false,false,false,false,false,
-                true,false,false,false,false,true,false,false,false,
+                false,false,true,false,true,false,false,false,false,
+                false,false,false,true,false,true,false,false,false,
                 false,false,true,false,false,false,true,false,false,
-                false,false,false,true,false,false,false,false,true,
-                false,false,false,false,false,false,false,true,false,
-                true,false,false,true,false,false,true,true,false,
-                true,true,false,true,false,false,false,false,false,
+                false,true,false,false,false,false,false,false,false,
+                true,false,false,false,false,false,false,true,true,
+                false,false,true,false,true,false,false,false,false,
+                false,false,false,false,true,false,false,false,true,
                                 };
 
         static int index;
@@ -393,57 +394,57 @@ namespace sudoku1
                     counter++;
                 }
 
-                //if (GETPLATEAUS > 0)
-                //{
-                //    int score = 0;
-                //    foreach (int row in rowScores)
-                //    {
-                //        score += row;
-                //    }
-                //    foreach (int column in columnScores)
-                //    {
-                //        score += column;
-                //    }
-
-                //    if (localMaxScore == score)
-                //    {
-                //        if (localMax.Add(string.Join("", sudoku)))
-                //            totalPlateaus++;
-                //    }
-                //    else done = true;
-
-                //}
-                //// if all blocks have been checked and the score didn't change
-                //// then check if you have the global max, else randomwalk
-                if (counter == 9 /*|| done*/)
+                if (GETPLATEAUS > 0)
                 {
-                //    if (GETPLATEAUS == 0)
-                //    {
-                //        // try to add sudoku, else duplicate counter +1
-                //        if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
-                //            localMaxDuplicate++;
+                    int score = 0;
+                    foreach (int row in rowScores)
+                    {
+                        score += row;
+                    }
+                    foreach (int column in columnScores)
+                    {
+                        score += column;
+                    }
 
-                //        localMaxScore = 0;
-                //        foreach (int row in rowScores)
-                //        {
-                //            localMaxScore += row;
-                //        }
-                //        foreach (int column in columnScores)
-                //        {
-                //            localMaxScore += column;
-                //        }
-                //    }
+                    if (localMaxScore == score)
+                    {
+                        if (localMax.Add(string.Join("", sudoku)))
+                            totalPlateaus++;
+                    }
+                    else done = true;
 
-                //    GETPLATEAUS++;
-                //    Array.Clear(walkrandom, 0, 9);
-                //    counter = 0;
-                //    if (GETPLATEAUS > 7 || done)
-                //    {
-                //        GETPLATEAUS = 0;
-                //        done = false;
+                }
+                // if all blocks have been checked and the score didn't change
+                // then check if you have the global max, else randomwalk
+                if (counter == 9 || done)
+                {
+                    if (GETPLATEAUS == 0)
+                    {
+                        // try to add sudoku, else duplicate counter +1
+                        if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
+                            localMaxDuplicate++;
+
+                        localMaxScore = 0;
+                        foreach (int row in rowScores)
+                        {
+                            localMaxScore += row;
+                        }
+                        foreach (int column in columnScores)
+                        {
+                            localMaxScore += column;
+                        }
+                    }
+
+                    GETPLATEAUS++;
+                    Array.Clear(didScoreChange, 0, 9);
+                    counter = 0;
+                    if (GETPLATEAUS > 7 || done)
+                    {
+                        GETPLATEAUS = 0;
+                        done = false;
                         // calculate the score
 
-                    globalMax = true;
+                        globalMax = true;
                     foreach (int row in rowScores)
                     {
                         if (row > 0)
@@ -466,8 +467,7 @@ namespace sudoku1
                     {
                         stopwatch.Stop();
                         long stopTime = stopwatch.ElapsedMilliseconds;
-                        time.Add(stopTime);
-                        states.Add(i);
+                            ratios.Add(localMaxDuplicate / (float)(localMax.Count - totalPlateaus));
                         if(getAverageCounter == 0)
                         {
                             highestTime = -1;
@@ -494,7 +494,7 @@ namespace sudoku1
                         Exit();
                     }
 
-                    randomWalk(8);
+                    randomWalk(5);
 
                     //if (i > 10_000_000)
                     //{
@@ -516,7 +516,7 @@ namespace sudoku1
                     counter = 0;
                 }
             }
-            //}
+            }
 
             // no solution found within a time limit
             //Console.Clear();                                      TODO: UNCOMMENT WHEN SPEED TESTING IS DONE
@@ -802,19 +802,15 @@ namespace sudoku1
         static void Exit()
         {
             //Console.WriteLine("\nPress F5 to solve a new sudoku\nPress Esc to exit");
-            if (getAverageCounter < 1000)
+            if (getAverageCounter < 10)
             {
                 getAverageCounter++;
                 Sudoku s = new Sudoku();
             }
             else
             {
-                Console.WriteLine($"time = {Math.Round(time.Average(), 0)}");
-                Console.WriteLine($"highest time = {highestTime}");
-                Console.WriteLine($"lowest time = {lowestTime}");
-                Console.WriteLine($"states = {Math.Round(states.Average(), 0)}");
-                Console.WriteLine($"highest state = {highestState}");
-                Console.WriteLine($"lowest state = {lowestState}");
+                Console.WriteLine($"ratio = {Math.Round(ratios.Average(), 2)}");
+                
                 
 
             }

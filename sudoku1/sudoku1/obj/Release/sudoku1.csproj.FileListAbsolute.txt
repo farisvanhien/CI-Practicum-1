@@ -5,3 +5,9 @@ D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.csproj.Co
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.exe
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.pdb
 D:\Jeroen\Documents\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.csprojAssemblyReference.cache
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\bin\Release\sudoku1.exe.config
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\bin\Release\sudoku1.exe
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\bin\Release\sudoku1.pdb
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.csproj.CoreCompileInputs.cache
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.exe
+D:\School\Computationele Intelligentie\Practicum 1\CI-Practicum-1\sudoku1\sudoku1\obj\Release\sudoku1.pdb
