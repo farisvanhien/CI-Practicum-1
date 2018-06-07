@@ -24,12 +24,40 @@ namespace sudoku1
 
         int localMaxDuplicate;
 
+        static int highestState;
+        static int lowestState;
+        static long highestTime;
+        static long lowestTime;
+        static int getAverageCounter = 0;
+        static List<int> states = new List<int>(1000);
+        static List<long> time = new List<long>(1000);
+
         #region Fields
-        Random r = new Random();
+        Random r = new Random(getAverageCounter);
         Stopwatch stopwatch = new Stopwatch();
 
-        static int[] sudoku = new int[81];             // the sudoku grid 
-        static bool[] fixedNumbers = new bool[81];     // is true if the number is fixed
+        // the sudoku grid 
+        static int [] sudoku =   {0,0,0,0,0,3,0,1,7,
+                                0,1,5,0,0,9,0,0,8,
+                                0,6,0,0,0,0,0,0,0,
+                                1,0,0,0,0,7,0,0,0,
+                                0,0,9,0,0,0,2,0,0,
+                                0,0,0,5,0,0,0,0,4,
+                                0,0,0,0,0,0,0,2,0,
+                                5,0,0,6,0,0,3,4,0,
+                                3,4,0,2,0,0,0,0,9 };
+        // is true if the number is fixed
+        static bool [] fixedNumbers = {
+                false,false,false,false,false,true,false,true,true,
+                false,true,true,false,false,true,false,false,true,
+                false,true,false,false,false,false,false,false,false,
+                true,false,false,false,false,true,false,false,false,
+                false,false,true,false,false,false,true,false,false,
+                false,false,false,true,false,false,false,false,true,
+                false,false,false,false,false,false,false,true,false,
+                true,false,false,true,false,false,true,true,false,
+                true,true,false,true,false,false,false,false,false,
+                                };
 
         static int index;
         static int blockIndex;
@@ -72,20 +100,22 @@ namespace sudoku1
                 columns[i] = new int[9];
             }
 
-            Console.WriteLine(
-@"Welcome to SudokuSolver 9000
-Please enter your sudoku in this format:
-1 0 0 0 0 0 0 0 0
-0 2 0 0 0 0 0 0 0
-0 0 3 0 0 0 0 0 0
-0 0 0 4 7 9 0 0 0
-0 0 0 2 5 8 0 0 0
-0 0 0 1 3 6 0 0 0
-0 0 0 0 0 0 7 0 0
-0 0 0 0 0 0 0 8 0
-0 0 0 0 0 0 0 0 9
-");
+//            Console.WriteLine(
+//@"Welcome to SudokuSolver 9000
+//Please enter your sudoku in this format:
+//1 0 0 0 0 0 0 0 0
+//0 2 0 0 0 0 0 0 0
+//0 0 3 0 0 0 0 0 0
+//0 0 0 4 7 9 0 0 0
+//0 0 0 2 5 8 0 0 0
+//0 0 0 1 3 6 0 0 0
+//0 0 0 0 0 0 7 0 0
+//0 0 0 0 0 0 0 8 0
+//0 0 0 0 0 0 0 0 9
+//");
 
+            
+            /*
             while (true)
             {
                 try
@@ -123,7 +153,7 @@ Please enter your sudoku in this format:
                     }
                 }
             }
-
+            /*
             //check blocks
             for (int verticalBlock = 0; verticalBlock < 3; verticalBlock++)
             {
@@ -196,10 +226,11 @@ Please enter your sudoku in this format:
                     Exit();
                 }
             }
-
+            */
+            
             Console.Clear();
             Console.WriteLine("Solving sudoku...\n");
-
+            Console.WriteLine(getAverageCounter);
             #endregion
 
             #region Initialize
@@ -219,9 +250,7 @@ Please enter your sudoku in this format:
                             index = horizontalBlock * 27 + verticalBlock * 3 + verticalNumber * 9 + horizontalNumber;
 
                             if (fixedNumbers[index])
-                            {
                                 numbers.Add(sudoku[index]); // add fixed numbers to a list so we only get unique numbers in a block
-                            }
                         }
                     }
 
@@ -247,7 +276,7 @@ Please enter your sudoku in this format:
                     }
                 }
             }
-
+            
             index = 0;
             // fill rows and columns
             for (int number = 0; number < 9; number++)
@@ -285,7 +314,7 @@ Please enter your sudoku in this format:
             #region ILS
             for (int i = 0; i < 125_000_000; i++) // iteration criterion; takes less than 2 minutes
             {
-                if (i % 1_000_000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);   // TODO: REMOVE WHEN DONE
+                //if (i % 1_000_000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);   // TODO: REMOVE WHEN DONE
 
                 getRandomBlock();
 
@@ -435,37 +464,54 @@ Please enter your sudoku in this format:
 
                     if (globalMax)    // check if you got the global max
                     {
+                        stopwatch.Stop();
+                        long stopTime = stopwatch.ElapsedMilliseconds;
+                        time.Add(stopTime);
+                        states.Add(i);
+                        if(getAverageCounter == 0)
+                        {
+                            highestTime = -1;
+                            lowestTime = long.MaxValue;
+                            highestState = -1;
+                            lowestState = int.MaxValue;
+                        }
+
+
+                        if (stopTime > highestTime)
+                            highestTime = stopTime;
+                         if (stopTime < lowestTime)
+                            lowestTime = stopTime;
+                        if (i > highestState)
+                            highestState = i;
+                        if (i < lowestState)
+                            lowestState = i;
                         //Console.Clear();                                              TODO: UNCOMMENT WHEN SPEEDTESTING IS DONE
-                        Console.WriteLine($"I have found the solution in {stopwatch.ElapsedMilliseconds / 1000f} seconds and {i} states!");
-                        printSudoku(sudoku);
-                        Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("uniques = " + (localMax.Count() - totalPlateaus)); //TODO: REMOVE WHEN DONE TESTING
-                        Console.WriteLine("ratio = " + localMaxDuplicate / (float)(localMax.Count - totalPlateaus));  //TODO: REMOVE WHEN DONE TESTING
+                        //Console.WriteLine($"I have found the solution in {stopwatch.ElapsedMilliseconds / 1000f} seconds and {i} states!");
+                        //printSudoku(sudoku);
+                        //Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
+                        //Console.WriteLine("uniques = " + (localMax.Count() - totalPlateaus)); //TODO: REMOVE WHEN DONE TESTING
+                        //Console.WriteLine("ratio = " + localMaxDuplicate / (float)(localMax.Count - totalPlateaus));  //TODO: REMOVE WHEN DONE TESTING
                         Exit();
                     }
 
-                    // try to add sudoku, else duplicate counter +1
-                    //if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
-                    //    localMaxDuplicate++;
+                    randomWalk(8);
 
-                    if (i > 10_000_000)
-                        randomWalk(4);
-                    else if (i > 1_000_000)
-                        randomWalk(5);
-                    else if (i > 250_000)
-                        randomWalk(6);
-                    //else if (counter == 3) // walk more if more duplicate localmaxima are found, to get out of a group of localmaxima
+                    //if (i > 10_000_000)
                     //{
+                    //    if (sudoku.SequenceEqual(lastLocalMax)) // if the same localmaxima is found as last time, then increase the randomwalk, to make sure it doesn't happen again
+                    //        randomWalk(6);
+                    //    else
+                    //    {
+                    //        randomWalk(4);
+                    //        Array.Copy(sudoku, lastLocalMax, 81);
+                    //    }   
+                    //}
+                    //else if (i > 1_000_000)
+                    //    randomWalk(5);
+                    //else if (i > 250_000)
                     //    randomWalk(6);
-                    //    counter = 0;
-                    //} 
-                    else
-                    {
-                        //if (sudoku.SequenceEqual(lastLocalMax))
-                        //    counter++;
-                        //Array.Copy(sudoku, lastLocalMax, 81);
-                        randomWalk(7);
-                    }
+                    //else
+                    //    randomWalk(7);
                     Array.Clear(didScoreChange, 0, 9);
                     counter = 0;
                 }
@@ -755,7 +801,24 @@ Please enter your sudoku in this format:
 
         static void Exit()
         {
-            Console.WriteLine("\nPress F5 to solve a new sudoku\nPress Esc to exit");
+            //Console.WriteLine("\nPress F5 to solve a new sudoku\nPress Esc to exit");
+            if (getAverageCounter < 1000)
+            {
+                getAverageCounter++;
+                Sudoku s = new Sudoku();
+            }
+            else
+            {
+                Console.WriteLine($"time = {Math.Round(time.Average(), 0)}");
+                Console.WriteLine($"highest time = {highestTime}");
+                Console.WriteLine($"lowest time = {lowestTime}");
+                Console.WriteLine($"states = {Math.Round(states.Average(), 0)}");
+                Console.WriteLine($"highest state = {highestState}");
+                Console.WriteLine($"lowest state = {lowestState}");
+                
+
+            }
+
             ConsoleKeyInfo input;
             while (true)
             {
@@ -765,7 +828,7 @@ Please enter your sudoku in this format:
                 else if (input.Key == ConsoleKey.F5)
                 {
                     Console.Clear();
-                    Sudoku s = new Sudoku();
+                    //Sudoku s = new Sudoku();
                 }
             }
         }
