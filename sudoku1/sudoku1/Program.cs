@@ -16,50 +16,14 @@ namespace sudoku1
     }
     class Sudoku
     {
-        static int localMaxScore;
-        static bool done;
-
-        int GETPLATEAUS;
-        int totalPlateaus;
-
-        int localMaxDuplicate;
-
-        static int highestState;
-        static int lowestState;
-        static long highestTime;
-        static long lowestTime;
-        static int getAverageCounter;
-        static List<int> states = new List<int>(1000);
-        static List<long> time = new List<long>(1000);
-        static List<float> ratios = new List<float>(50);
-
         #region Fields
-        Random r = new Random(getAverageCounter);
+        Random r = new Random();
         Stopwatch stopwatch = new Stopwatch();
 
         // the sudoku grid 
-        int [] sudoku =   {1,0,0,0,0,7,0,9,0,
-                                0,3,0,0,2,0,0,0,8,
-                                0,0,9,6,0,0,5,0,0,
-                                0,0,5,3,0,0,9,0,0,
-                                0,1,0,0,8,0,0,0,2,
-                                6,0,0,0,0,4,0,0,0,
-                                3,0,0,0,0,0,0,1,0,
-                                0,4,0,0,0,0,0,0,7,
-                                0,0,7,0,0,0,3,0,0 };
+        static int[] sudoku = new int[81];
         // is true if the number is fixed
-        bool [] fixedNumbers = {
-                true,false,false,false,false,true,false,true,false,
-                false,true,false,false,true,false,false,false,true,
-                false,false,true,true,false,false,true,false,false,
-                false,false,true,true,false,false,true,false,false,
-                false,true,false,false,true,false,false,false,true,
-                true,false,false,false,false,true,false,false,false,
-                true,false,false,false,false,false,false,true,false,
-                false,true,false,false,false,false,false,false,true,
-                false,false,true,false,false,false,true,false,false,
-                                };
-
+        static bool[] fixedNumbers = new bool[81];
 
         static int index;
         static int blockIndex;
@@ -76,7 +40,7 @@ namespace sudoku1
 
         static bool[] didScoreChange = new bool[9];   // an array that sets a element true if the score didn't increase after swapping
         int counter;    // a counter that keeps track of the amount of elements set to true in didScoreChange
-        static int counter2;
+
         static int start;
 
         static bool notCorrectNumbers;
@@ -86,11 +50,8 @@ namespace sudoku1
 
         static List<int> numbers = new List<int>(9);
 
-        static List<int> bestSwap1 = new List<int>(15);
-        static List<int> bestSwap2 = new List<int>(15);
-
-        HashSet<string> localMax = new HashSet<string>();
-        static int counter3;
+        static List<int> bestSwap1 = new List<int>(15); // list of 2 numbers to swap
+        static List<int> bestSwap2 = new List<int>(15); // the numbers to swap are on the same index
         #endregion
 
         public Sudoku()
@@ -103,22 +64,22 @@ namespace sudoku1
                 columns[i] = new int[9];
             }
 
-//            Console.WriteLine(
-//@"Welcome to SudokuSolver 9000
-//Please enter your sudoku in this format:
-//1 0 0 0 0 0 0 0 0
-//0 2 0 0 0 0 0 0 0
-//0 0 3 0 0 0 0 0 0
-//0 0 0 4 7 9 0 0 0
-//0 0 0 2 5 8 0 0 0
-//0 0 0 1 3 6 0 0 0
-//0 0 0 0 0 0 7 0 0
-//0 0 0 0 0 0 0 8 0
-//0 0 0 0 0 0 0 0 9
-//");
+            Console.WriteLine(
+@"Welcome to SudokuSolver 9000
+Please enter your sudoku in this format:
+1 0 0 0 0 0 0 0 0
+0 2 0 0 0 0 0 0 0
+0 0 3 0 0 0 0 0 0
+0 0 0 4 7 9 0 0 0
+0 0 0 2 5 8 0 0 0
+0 0 0 1 3 6 0 0 0
+0 0 0 0 0 0 7 0 0
+0 0 0 0 0 0 0 8 0
+0 0 0 0 0 0 0 0 9
+");
+
 
             
-            /*
             while (true)
             {
                 try
@@ -156,7 +117,7 @@ namespace sudoku1
                     }
                 }
             }
-            /*
+            
             //check blocks
             for (int verticalBlock = 0; verticalBlock < 3; verticalBlock++)
             {
@@ -229,11 +190,10 @@ namespace sudoku1
                     Exit();
                 }
             }
-            */
             
+
             Console.Clear();
-            Console.WriteLine("Solving sudoku...\n");
-            Console.WriteLine(getAverageCounter);
+            Console.Write("Solving sudoku.");
             #endregion
 
             #region Initialize
@@ -315,9 +275,10 @@ namespace sudoku1
             #endregion
 
             #region ILS
-            for (int i = 0; i < 125_000_000; i++) // iteration criterion; takes less than 2 minutes
+            for (int i = 0; i < 50_000_000; i++) // iteration criterion; takes less than 2 minutes
             {
-                //if (i % 1_000_000 == 0) Console.WriteLine(i + " " + stopwatch.ElapsedMilliseconds / 1000f);   // TODO: REMOVE WHEN DONE
+                if ((i & 1_048_575) == 0)   // to show it is still calculating
+                    Console.Write(".");
 
                 getRandomBlock();
 
@@ -396,54 +357,10 @@ namespace sudoku1
                     counter++;
                 }
 
-                if (GETPLATEAUS > 0)
-                {
-                    int score = 0;
-                    foreach (int row in rowScores)
-                    {
-                        score += row;
-                    }
-                    foreach (int column in columnScores)
-                    {
-                        score += column;
-                    }
-
-                    if (localMaxScore == score)
-                    {
-                        if (localMax.Add(string.Join("", sudoku)))
-                            totalPlateaus++;
-                    }
-                    else
-                        done = true;
-                }
                 // if all blocks have been checked and the score didn't change
                 // then check if you have the global max, else randomwalk
-                if (counter == 9 || done)
+                if (counter == 9)
                 {
-                    if (GETPLATEAUS == 0)
-                    {
-                        // try to add sudoku, else duplicate counter +1
-                        if (!localMax.Add(string.Join("", sudoku)))  // remember that plateaus can be seen as an unique localMax
-                            localMaxDuplicate++;
-
-                        localMaxScore = 0;
-                        foreach (int row in rowScores)
-                        {
-                            localMaxScore += row;
-                        }
-                        foreach (int column in columnScores)
-                        {
-                            localMaxScore += column;
-                        }
-                    }
-
-                    GETPLATEAUS++;
-                    Array.Clear(didScoreChange, 0, 9);
-                    counter = 0;
-                    if (GETPLATEAUS > 7 || done)
-                    {
-                        GETPLATEAUS = 0;
-                        done = false;
                         // calculate the score
 
                         globalMax = true;
@@ -467,34 +384,9 @@ namespace sudoku1
 
                     if (globalMax)    // check if you got the global max
                     {
-                        stopwatch.Stop();
-                        long stopTime = stopwatch.ElapsedMilliseconds;
-                            ratios.Add(localMaxDuplicate / (float)(localMax.Count - totalPlateaus));
-                        time.Add(stopTime);
-                        states.Add(i);
-                        if(getAverageCounter == 0)
-                        {
-                            highestTime = -1;
-                            lowestTime = long.MaxValue;
-                            highestState = -1;
-                            lowestState = int.MaxValue;
-                        }
-
-
-                        if (stopTime > highestTime)
-                            highestTime = stopTime;
-                        if (stopTime < lowestTime)
-                            lowestTime = stopTime;
-                        if (i > highestState)
-                            highestState = i;
-                        if (i < lowestState)
-                            lowestState = i;
-                        //Console.Clear();                                              TODO: UNCOMMENT WHEN SPEEDTESTING IS DONE
-                        //Console.WriteLine($"I have found the solution in {stopwatch.ElapsedMilliseconds / 1000f} seconds and {i} states!");
-                        //printSudoku(sudoku);
-                        //Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
-                        //Console.WriteLine("uniques = " + (localMax.Count() - totalPlateaus)); //TODO: REMOVE WHEN DONE TESTING
-                        //Console.WriteLine("ratio = " + localMaxDuplicate / (float)(localMax.Count - totalPlateaus));  //TODO: REMOVE WHEN DONE TESTING
+                        Console.Clear();
+                        Console.WriteLine($"I have found the solution in {stopwatch.ElapsedMilliseconds / 1000f} seconds and {i} states!");
+                        printSudoku(sudoku);
                         Exit();
                     }
 
@@ -511,14 +403,11 @@ namespace sudoku1
                     counter = 0;
                 }
             }
-            }
+            
 
             // no solution found within a time limit
-            //Console.Clear();                                      TODO: UNCOMMENT WHEN SPEED TESTING IS DONE
+            Console.Clear();
             Console.WriteLine($"I could not find the solution in {stopwatch.ElapsedMilliseconds / 1000f} seconds :(");
-            Console.WriteLine("duplicates = " + localMaxDuplicate); //TODO: REMOVE WHEN DONE TESTING
-            Console.WriteLine("uniques = " + localMax.Count()); //TODO: REMOVE WHEN DONE TESTING
-            Console.WriteLine("ratio = " + localMaxDuplicate / (float)localMax.Count);  //TODO: REMOVE WHEN DONE TESTING
             Exit();
             #endregion
         }
@@ -796,27 +685,7 @@ namespace sudoku1
 
         static void Exit()
         {
-            //Console.WriteLine("\nPress F5 to solve a new sudoku\nPress Esc to exit");
-            if (getAverageCounter < 50)
-            {
-                getAverageCounter++;
-                Sudoku s = new Sudoku();
-            }
-            else
-            {
-                Console.WriteLine($"time = {Math.Round(time.Average(), 0)}");
-                Console.WriteLine($"high time = {highestTime}");
-                Console.WriteLine($"low time = {lowestTime}");
-                Console.WriteLine($"states = {Math.Round(states.Average(), 0)}");
-                Console.WriteLine($"high states = {highestState}");
-                Console.WriteLine($"low states = {lowestState}");
-                Console.WriteLine($"ratio = {Math.Round(ratios.Average(), 2)}");
-
-                Console.WriteLine(counter2);
-                Console.WriteLine(counter3);
-
-            }
-
+            Console.WriteLine("Press F5 to solve a new sudoku\nPress Esc to exit");
             ConsoleKeyInfo input;
             while (true)
             {
@@ -826,7 +695,7 @@ namespace sudoku1
                 else if (input.Key == ConsoleKey.F5)
                 {
                     Console.Clear();
-                    //Sudoku s = new Sudoku();
+                    Sudoku s = new Sudoku();
                 }
             }
         }
